@@ -1,0 +1,131 @@
+ELF auxiliary vectors are a mechanism to transfer certain kernel level information to the user processes. An example of such an information is the pointer to the system call entry point in the memory (AT_SYSINFO); this information is dynamic in nature and is only known after kernel has finished up loading.
+
+The information is passed on to the user processes by binary loaders which are part of the kernel subsystem itself; either built-in the kernel or a kernel module. Binary loaders convert a binary file, a program, into a process on the system. Usually there is a different loader for each binary format; thankfully there are not many binary formats - most of the linux based systems now use ELF binaries. ELF binary loader is defined in the following file /usr/src/linux/fs/binfmt_elf.c.
+
+The ELF loader parses the ELF file, maps the various program segments in the memory, sets up the entry point and initializes the process stack. It puts ELF auxiliary vectors on the process stack along with other information like argc, argv, envp. After initialization, a process' stack looks something like this:
+
+position            content                     size (bytes) + comment
+  ------------------------------------------------------------------------
+  stack pointer ->  [ argc = number of args ]     4
+                    [ argv[0] (pointer) ]         4   (program name)
+                    [ argv[1] (pointer) ]         4
+                    [ argv[..] (pointer) ]        4 * x
+                    [ argv[n - 1] (pointer) ]     4
+                    [ argv[n] (pointer) ]         4   (= NULL)
+
+                    [ envp[0] (pointer) ]         4
+                    [ envp[1] (pointer) ]         4
+                    [ envp[..] (pointer) ]        4
+                    [ envp[term] (pointer) ]      4   (= NULL)
+
+                    [ auxv[0] (Elf32_auxv_t) ]    8
+                    [ auxv[1] (Elf32_auxv_t) ]    8
+                    [ auxv[..] (Elf32_auxv_t) ]   8
+                    [ auxv[term] (Elf32_auxv_t) ] 8   (= AT_NULL vector)
+
+                    [ padding ]                   0 - 16
+
+                    [ argument ASCIIZ strings ]   >= 0
+                    [ environment ASCIIZ str. ]   >= 0
+
+  (0xbffffffc)      [ end marker ]                4   (= NULL)
+
+  (0xc0000000)      < bottom of stack >           0   (virtual)
+  ------------------------------------------------------------------------
+ELF loader puts an array (auxv) of ELF auxiliary vectors at the bottom of the stack. The structure of an auxiliary vector is defined in /usr/include/elf.h as:
+
+typedef struct
+{
+  uint32_t a_type;              /* Entry type */
+  union
+    {
+      uint32_t a_val;           /* Integer value */
+      /* We use to have pointer elements added here.  We cannot do that,
+         though, since it does not work when using 32-bit definitions
+         on 64-bit platforms and vice versa.  */
+    } a_un;
+} Elf32_auxv_t;
+a_type defines the entry type and union a_un defines the entry value. Legal values for a_type are defined in elf.h. To give you an idea, here are some of the vectors:
+/* Legal values for a_type (entry type).  */
+#define AT_NULL         0               /* End of vector */
+#define AT_IGNORE       1               /* Entry should be ignored */
+#define AT_EXECFD       2               /* File descriptor of program */
+#define AT_PHDR         3               /* Program headers for program */
+#define AT_PHENT        4               /* Size of program header entry */
+#define AT_PHNUM        5               /* Number of program headers */
+#define AT_PAGESZ       6               /* System page size */
+#define AT_BASE         7               /* Base address of interpreter */
+#define AT_FLAGS        8               /* Flags */
+#define AT_ENTRY        9               /* Entry point of program */
+#define AT_NOTELF       10              /* Program is not ELF */
+#define AT_UID          11              /* Real uid */
+#define AT_EUID         12              /* Effective uid */
+#define AT_GID          13              /* Real gid */
+#define AT_EGID         14              /* Effective gid */
+#define AT_CLKTCK       17              /* Frequency of times() */
+/* Pointer to the global system page used for system calls and other nice things.  */
+#define AT_SYSINFO      32
+#define AT_SYSINFO_EHDR 33
+The whole list is defined in the header files: /usr/include/linux/auxvec.h and asm/auxvec.h. (Since all entry types (a_type) start with AT_, ELF auxiliary vectors are also called AT_ elf parameters.)
+
+Example of adding AT_SYSINFO auxiliary vector:
+arch/ia64/include/asm/elf.h:
+
+#define ARCH_DLINFO								\
+do {										\
+	extern char __kernel_syscall_via_epc[];					\
+	NEW_AUX_ENT(AT_SYSINFO, (unsigned long) __kernel_syscall_via_epc);	\
+	NEW_AUX_ENT(AT_SYSINFO_EHDR, (unsigned long) GATE_EHDR);		\
+} while (0)
+
+fs/binfmt_elf.c:
+
+#define NEW_AUX_ENT(id, val) \
+	do { \
+		elf_info[ei_index++] = id; \
+		elf_info[ei_index++] = val; \
+	} while (0)
+
+Spying On ELF Auxiliary Vectors:
+ELF auxiliary vectors are mostly used by the program interpreter and hence are not discussed much by the programmers. The ELF auxiliary vectors being passed to a program can be seen by setting environment variable LD_SHOW_AUXV to 1.
+
+[root@localhost ~]# LD_SHOW_AUXV=1 /bin/true
+AT_SYSINFO:      0x9ff400
+AT_SYSINFO_EHDR: 0x9ff000
+AT_HWCAP:    fpu vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss
+AT_PAGESZ:       4096
+AT_CLKTCK:       100
+..........
+Programmers can also access these parameters inside their programs by reaching out to the auxv array on the stack. Following program snippet shows a way to find out the value of AT_SYSINFO parameter:
+
+#include <stdio.h>
+#include <elf.h>
+
+main(int argc, char* argv[], char* envp[])
+{
+        Elf32_auxv_t *auxv;
+        while(*envp++ != NULL); /*from stack diagram above: *envp = NULL marks end of envp*/
+
+        for (auxv = (Elf32_auxv_t *)envp; auxv->a_type != AT_NULL; auxv++)
+      /* auxv->a_type = AT_NULL marks the end of auxv */
+        {
+                if( auxv->a_type == AT_SYSINFO)
+                        printf("AT_SYSINFO is: 0x%x\n", auxv->a_un.a_val);
+        }
+}
+
+[root@localhost ~]# gcc -o ats ats.c
+[root@localhost ~]# ./ats
+AT_SYSINFO: 0xc24400
+
+We can verify that our program is working properly by using LD_SHOW_AUXV environment variable:
+[root@localhost ~]# LD_SHOW_AUXV=1 ./ats | grep AT_SYSINFO
+AT_SYSINFO:      0xdd9400
+AT_SYSINFO_EHDR: 0xdd9000
+AT_SYSINFO is: 0xdd9400
+Well, that's all I had to say about Elf auxiliary vectors. I had to go in search of them because of my previous article on "Sysenter Based System Call Mechanism in Linux 2.6". 
+
+Credit: Stack diagram has been taken from the phrack article http://www.phrack.org/phrack/58/p58-0x05 by grugq and scut.
+
+
+

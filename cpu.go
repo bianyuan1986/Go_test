@@ -115,3 +115,41 @@ func main() {
 	}
 	//fmt.Printf("Get _SC_CLK_TCK %d", int(C.sysconf(C._SC_CLK_TCK)))
 }
+
+/*
+本文件实现了计算指定进程的CPU使用率
+方案一：通过cgo调用c函数sysconf获取每秒的tick数，然后读取/proc/PID/stat获取进程运行的用户态和内核态时间，因为是固定时间间隔读取统计数据，所以不需要再
+读取/proc/uptime来获取机器运行时间以及进程的启动时间来获取进程运行的总的时间，只需要根据两次读取的数据差值和统计间隔进行计算即可，但是使用cgo的情况
+交叉编译比较复杂，不如纯go代码的交叉编译简单，因此放弃该方案
+方案二：通过/proc/self/auxv获取每秒的tick数，加载器通常把一些内核级的信息通过auxv传递给进程，比如用于生成栈保护canary的随机数也是通过auxv传递给进程，
+加载器会把auxv信息放到栈空间
+position            content                     size (bytes) + comment
+  ------------------------------------------------------------------------
+  stack pointer ->  [ argc = number of args ]     4
+                    [ argv[0] (pointer) ]         4   (program name)
+                    [ argv[1] (pointer) ]         4
+                    [ argv[..] (pointer) ]        4 * x
+                    [ argv[n - 1] (pointer) ]     4
+                    [ argv[n] (pointer) ]         4   (= NULL)
+
+                    [ envp[0] (pointer) ]         4
+                    [ envp[1] (pointer) ]         4
+                    [ envp[..] (pointer) ]        4
+                    [ envp[term] (pointer) ]      4   (= NULL)
+
+                    [ auxv[0] (Elf32_auxv_t) ]    8
+                    [ auxv[1] (Elf32_auxv_t) ]    8
+                    [ auxv[..] (Elf32_auxv_t) ]   8
+                    [ auxv[term] (Elf32_auxv_t) ] 8   (= AT_NULL vector)
+
+                    [ padding ]                   0 - 16
+
+                    [ argument ASCIIZ strings ]   >= 0
+                    [ environment ASCIIZ str. ]   >= 0
+
+  (0xbffffffc)      [ end marker ]                4   (= NULL)
+
+  (0xc0000000)      < bottom of stack >           0   (virtual)
+  ------------------------------------------------------------------------
+
+*/
