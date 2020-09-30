@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/parse"
+	"os"
 	"strings"
 	"time"
 	"unsafe"
@@ -17,6 +18,7 @@ import (
 #include "lualib.h"
 #include "lua.h"
 #include <stdlib.h>
+#include <string.h>
 
 int sum(int range)
 {
@@ -30,12 +32,28 @@ int sum(int range)
 
 	return total;
 }
+
+int find(char *payload, char flag)
+{
+	int i = 0;
+	int pLen = strlen(payload);
+
+	for( ; i < pLen; i++)
+	{
+		if(payload[i] == flag)
+		{
+			break;
+		}
+	}
+}
 */
 import "C"
 
 const (
 	REPEAT_CNT = 4
 )
+
+var luaStatement string = `print("Hello World!")`
 
 func sum(boundary int) int {
 	var total int = 0
@@ -47,6 +65,34 @@ func sum(boundary int) int {
 	return total
 }
 
+func golang_string_test() {
+	loopCnt := 1
+	for i := 0; i < REPEAT_CNT; i++ {
+		loopCnt *= 10
+		start := time.Now()
+		for j := 0; j < loopCnt; j++ {
+			strings.IndexByte("testdwefweefsewfewfewwwfwewfefwfweweoojooojoljojoefwefez", 'z')
+		}
+		elapse := time.Now().Sub(start)
+		fmt.Printf("Golang string Time consumed:[%s]\n", elapse.String())
+	}
+	fmt.Println("\n")
+}
+
+func cgo_string_test() {
+	loopCnt := 1
+	for i := 0; i < REPEAT_CNT; i++ {
+		loopCnt *= 10
+		start := time.Now()
+		for j := 0; j < loopCnt; j++ {
+			C.find(C.CString("testdwefweefsewfewfewwwfwewfefwfweweoojooojoljojoefwefez"), C.char('z'))
+		}
+		elapse := time.Now().Sub(start)
+		fmt.Printf("Cgo string Time consumed:[%s]\n", elapse.String())
+	}
+	fmt.Println("\n")
+}
+
 func golang_test() {
 	loopCnt := 1
 	for i := 0; i < REPEAT_CNT; i++ {
@@ -56,9 +102,9 @@ func golang_test() {
 			sum(i)
 		}
 		elapse := time.Now().Sub(start)
-		fmt.Println("Golang Time consumed:\n", elapse)
+		fmt.Printf("Golang Time consumed:[%s]\n", elapse.String())
 	}
-	fmt.Println("\n\n")
+	fmt.Println("\n")
 }
 
 func cgo_test() {
@@ -70,27 +116,27 @@ func cgo_test() {
 			C.sum(C.int(i))
 		}
 		elapse := time.Now().Sub(start)
-		fmt.Println("Cgo Time consumed:\n", elapse)
+		fmt.Printf("Cgo Time consumed:[%s]\n", elapse.String())
 	}
-	fmt.Println("\n\n")
+	fmt.Println("\n")
 }
 
 func golang_lua_test() {
 	start := time.Now()
 	L := lua.NewState()
-	if err := L.DoString(`print("Hello World!")`); err != nil {
+	if err := L.DoString(luaStatement); err != nil {
 		panic(err)
 	}
 	elapse := time.Now().Sub(start)
-	fmt.Println("Golang lua Time consumed:\n", elapse)
-	fmt.Println("\n\n")
+	fmt.Printf("Golang lua Time consumed:[%s]\n", elapse.String())
+	fmt.Println("\n")
 
 	L.Close()
 }
 
 func golang_lua_precompile_test() {
 	start := time.Now()
-	r := strings.NewReader(`print("Hello World!")`)
+	r := strings.NewReader(luaStatement)
 	chunk, err := parse.Parse(r, "tiger")
 	if err != nil {
 		fmt.Println("Parse failed!")
@@ -106,14 +152,14 @@ func golang_lua_precompile_test() {
 	L1.Push(lfunc)
 	L1.PCall(0, lua.MultRet, nil)
 	elapse := time.Now().Sub(start)
-	fmt.Println("Golang lua with precompile Time consumed:\n", elapse)
-	fmt.Println("\n\n")
+	fmt.Printf("Golang lua with precompile Time consumed:[%s]\n", elapse.String())
+	fmt.Println("\n")
 
 	L1.Close()
 }
 
 func golang_lua_bytecode_run_test() {
-	r := strings.NewReader(`print("Hello World!")`)
+	r := strings.NewReader(luaStatement)
 	chunk, err := parse.Parse(r, "tiger")
 	if err != nil {
 		fmt.Println("Parse failed!")
@@ -127,15 +173,15 @@ func golang_lua_bytecode_run_test() {
 	start := time.Now()
 	L1 := lua.NewState()
 	elapse := time.Now().Sub(start)
-	fmt.Println("Golang lua create vm Time consumed:\n", elapse)
+	fmt.Printf("Golang lua create vm Time consumed:[%s]\n", elapse.String())
 
 	start = time.Now()
 	lfunc := L1.NewFunctionFromProto(proto)
 	L1.Push(lfunc)
 	L1.PCall(0, lua.MultRet, nil)
 	elapse = time.Now().Sub(start)
-	fmt.Println("Golang lua run bytecode Time consumed:\n", elapse)
-	fmt.Println("\n\n")
+	fmt.Printf("Golang lua run bytecode Time consumed:[%s]\n", elapse.String())
+	fmt.Println("\n")
 
 	L1.Close()
 }
@@ -144,26 +190,33 @@ func cgo_lua_test() {
 	start := time.Now()
 	l := C.luaL_newstate()
 	C.luaL_openlibs(l)
-	s := C.CString(`print("Hello World!")`)
+	s := C.CString(luaStatement)
 	ret := C.luaL_loadstring(l, s)
 	elapse := time.Now().Sub(start)
 	if ret == 0 {
-		fmt.Println("Cgo lua prepare Time consumed:\n", elapse)
+		fmt.Printf("Cgo lua prepare Time consumed:[%s]\n", elapse.String())
 		start = time.Now()
 		C.lua_pcall(l, 0, -1, 0)
 	}
 	elapse = time.Now().Sub(start)
-	fmt.Println("Cgo lua run bytecode Time consumed:\n", elapse)
-	fmt.Println("\n\n")
+	fmt.Printf("Cgo lua run bytecode Time consumed:[%s]\n", elapse.String())
+	fmt.Println("\n")
 
 	C.lua_close(l)
 	C.free(unsafe.Pointer(s))
 }
 
 func main() {
+	if len(os.Args) > 1 {
+		luaStatement = string(os.Args[1])
+		fmt.Println("Lua statement:[%s]", luaStatement)
+	}
+
 	fmt.Println("Begin Test!")
 	cgo_test()
 	golang_test()
+	cgo_string_test()
+	golang_string_test()
 	golang_lua_test()
 	cgo_lua_test()
 	golang_lua_precompile_test()
