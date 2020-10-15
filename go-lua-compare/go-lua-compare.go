@@ -5,6 +5,7 @@ import (
 	"github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/parse"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 	"unsafe"
@@ -51,9 +52,13 @@ import "C"
 
 const (
 	REPEAT_CNT = 4
+	SIZE       = 1024 * 1024
 )
 
-var luaStatement string = `print("Hello World!")`
+//var luaStatement string = `print("Hello World!")`
+
+var luaStatement string = "s = 'select where'; if string.sub(s,1,6)=='select' and string.find(s,'where') then ok = 1 end"
+var L1 *lua.LState
 
 func sum(boundary int) int {
 	var total int = 0
@@ -206,6 +211,29 @@ func cgo_lua_test() {
 	C.free(unsafe.Pointer(s))
 }
 
+func golang_lua_engine_memory_test(count int) {
+	var st1 runtime.MemStats
+	var st2 runtime.MemStats
+	runtime.ReadMemStats(&st1)
+	fmt.Printf("Count:%d\n", count)
+	fmt.Printf("Sys:[%7.2f]M HeapSys:[%7.2f]M HeapIdle:[%7.2f]M HeapInuse:[%7.2f]M StackSys:[%7.2f]M StackInuse:[%7.2f]M\n", float64(st1.Sys)/SIZE, float64(st1.HeapSys)/SIZE, float64(st1.HeapIdle)/SIZE, float64(st1.HeapInuse)/SIZE, float64(st1.StackSys)/SIZE, float64(st1.StackInuse)/SIZE)
+	for i := 0; i < count; i++ {
+		L1 = lua.NewState()
+		L1.DoString("s = 'select where'; if string.sub(s,1,6)=='select' and string.find(s,'where') then ok = 1 end")
+	}
+	runtime.ReadMemStats(&st2)
+	fmt.Printf("Sys:[%7.2f]M HeapSys:[%7.2f]M HeapIdle:[%7.2f]M HeapInuse:[%7.2f]M StackSys:[%7.2f]M StackInuse:[%7.2f]M\n", float64(st2.Sys)/SIZE, float64(st2.HeapSys)/SIZE, float64(st2.HeapIdle)/SIZE, float64(st2.HeapInuse)/SIZE, float64(st2.StackSys)/SIZE, float64(st2.StackInuse)/SIZE)
+	fmt.Printf("\n\n")
+}
+
+func memory_test() {
+	count := 10
+	for i := 1; i < 4; i++ {
+		count *= 10
+		golang_lua_engine_memory_test(count)
+	}
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		luaStatement = string(os.Args[1])
@@ -213,6 +241,7 @@ func main() {
 	}
 
 	fmt.Println("Begin Test!")
+
 	cgo_test()
 	golang_test()
 	cgo_string_test()
@@ -221,5 +250,7 @@ func main() {
 	cgo_lua_test()
 	golang_lua_precompile_test()
 	golang_lua_bytecode_run_test()
+	memory_test()
+
 	fmt.Println("End Test!")
 }
