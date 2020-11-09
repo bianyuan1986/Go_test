@@ -164,6 +164,7 @@ func golang_lua_precompile_test() {
 }
 
 func golang_lua_bytecode_run_test() {
+	start := time.Now()
 	r := strings.NewReader(luaStatement)
 	chunk, err := parse.Parse(r, "tiger")
 	if err != nil {
@@ -175,7 +176,6 @@ func golang_lua_bytecode_run_test() {
 		fmt.Println("Compile failed!")
 		return
 	}
-	start := time.Now()
 	L1 := lua.NewState()
 	elapse := time.Now().Sub(start)
 	fmt.Printf("Golang lua create vm Time consumed:[%s]\n", elapse.String())
@@ -234,6 +234,23 @@ func memory_test() {
 	}
 }
 
+func GetMatchRuleId(l *lua.LState) int {
+	fmt.Println("Match rule id is 2020")
+	l.Push(lua.LNumber(2020))
+
+	return 1
+}
+
+func register_func() {
+	L := lua.NewState()
+	tbl := L.NewTable()
+	L.SetGlobal("waf", tbl)
+	L.SetField(tbl, "GetMatchRuleId", L.NewFunction(GetMatchRuleId))
+	if err := L.DoString("id = waf.GetMatchRuleId(); print(id); if id == \"2020\" then print(\"sql\") else print(\"not sql\") end"); err != nil {
+		fmt.Println("Failed")
+	}
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		luaStatement = string(os.Args[1])
@@ -251,6 +268,7 @@ func main() {
 	golang_lua_precompile_test()
 	golang_lua_bytecode_run_test()
 	memory_test()
+	register_func()
 
 	fmt.Println("End Test!")
 }
