@@ -15,6 +15,7 @@ var globalLuaName lua.LString = "Four"
 var L *lua.LState = nil
 var reqUd *lua.LUserData = nil
 var luaByteCode map[string]*lua.FunctionProto
+var globalResult string = ""
 
 func GetMatchRuleId(l *lua.LState) int {
 	fmt.Println("Match rule id is 2020")
@@ -87,6 +88,12 @@ func GetHttpField(l *lua.LState) int {
 	return 1
 }
 
+func SetResult(l *lua.LState) int {
+	globalResult = l.ToString(1)
+
+	return 0
+}
+
 func InitLua() {
 	L = lua.NewState()
 
@@ -124,6 +131,7 @@ var exports = map[string]lua.LGFunction{
 	"GetName":        GetName,
 	"GetLuaName":     GetLuaName,
 	"GetHttpField":   GetHttpField,
+	"SetResult":      SetResult,
 }
 
 func registerModuleV1(name string, L *lua.LState) int {
@@ -173,6 +181,7 @@ func tiger_test(w http.ResponseWriter, req *http.Request) {
 	lfunc := L.NewFunctionFromProto(proto)
 	L.Push(lfunc)
 	L.PCall(0, lua.MultRet, nil)
+	fmt.Fprintf(w, globalResult)
 }
 
 func NewServer(addr string) bool {
@@ -217,12 +226,12 @@ func main() {
 	}
 
 	luaScripts := map[string]string{
-		"202020": "uri = waf.GetHttpField(0); print(\"uri:\"..uri)",
-		"202021": "host = waf.GetHttpField(1); print(\"host:\"..host)",
-		"202022": "cookie = waf.GetHttpField(2); print(\"cookie:\"..cookie)",
-		"202023": "agent = waf.GetHttpField(3); print(\"user-agent:\"..agent)",
-		"202024": "connection = waf.GetHttpField(4); print(\"connection:\"..connection)",
-		"202025": "uid = waf.GetHttpField(5); print(\"uid:\"..uid)",
+		"202020": "uri = waf.GetHttpField(0); result = \"uri:\"..uri; waf.SetResult(result); print(result)",
+		"202021": "host = waf.GetHttpField(1); result = \"host:\"..host; waf.SetResult(result); print(result)",
+		"202022": "cookie = waf.GetHttpField(2); result = \"cookie:\"..cookie; waf.SetResult(result); print(result)",
+		"202023": "agent = waf.GetHttpField(3); result = \"user-agent:\"..agent; waf.SetResult(result); print(result)",
+		"202024": "connection = waf.GetHttpField(4); result = \"connection:\"..connection; waf.SetResult(result); print(result)",
+		"202025": "uid = waf.GetHttpField(5); result = \"uid:\"..uid; waf.SetResult(result)print(result)",
 	}
 
 	InitLua()
