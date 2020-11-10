@@ -3,15 +3,18 @@ package main
 import (
 	"fmt"
 	"github.com/yuin/gopher-lua"
+	"github.com/yuin/gopher-lua/parse"
 	"net"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var globalName string = "One"
 var globalLuaName lua.LString = "Four"
 var L *lua.LState = nil
 var reqUd *lua.LUserData = nil
+var luaByteCode map[string]*lua.FunctionProto
 
 func GetMatchRuleId(l *lua.LState) int {
 	fmt.Println("Match rule id is 2020")
@@ -45,8 +48,12 @@ func GetLuaName(l *lua.LState) int {
 }
 
 const (
-	FIELD_URI  = 0
-	FIELD_HOST = 1
+	FIELD_URI        = 0
+	FIELD_HOST       = 1
+	FIELD_COOKIE     = 2
+	FIELD_USER_AGENT = 3
+	FIELD_CONNECTION = 4
+	FIELD_UID        = 5
 )
 
 func GetHttpField(l *lua.LState) int {
@@ -55,17 +62,26 @@ func GetHttpField(l *lua.LState) int {
 	r := pri.Value.(*http.Request)
 	result := ""
 
-	fmt.Println(r.Header)
+	/*fmt.Println(r.Header)
+	r.ParseForm()
+	fmt.Println(r.Form)*/
 	switch field {
 	case FIELD_URI:
-		result = r.Header["Accept"][0]
+		result = r.RequestURI
 	case FIELD_HOST:
+		result = r.Host
+	case FIELD_COOKIE:
+		result = r.Header["Cookie"][0]
+	case FIELD_USER_AGENT:
 		result = r.Header["User-Agent"][0]
+	case FIELD_CONNECTION:
+		result = r.Header["Connection"][0]
+	case FIELD_UID:
+		result = r.Header["Uid"][0]
 	default:
 		fmt.Println("Unknown!")
 	}
 
-	fmt.Printf("Result:%s\n", result)
 	l.Push(lua.LString(result))
 
 	return 1
@@ -82,6 +98,7 @@ func InitLua() {
 
 	reqUd = L.NewUserData()
 	L.SetGlobal("req", reqUd)
+	luaByteCode = make(map[string]*lua.FunctionProto)
 	registerModuleV1("waf", L)
 }
 
@@ -135,16 +152,33 @@ func registerModuleV2(name string) int {
 }
 
 func bianyuan_test(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("Congratulations!")
 	reqUd.Value = req
 	if err := L.DoString("uri = waf.GetHttpField(0); host = waf.GetHttpField(1); print(\"uri:\"..uri); print(\"host:\"..host)"); err != nil {
 		fmt.Println("Failed")
 	}
 }
 
+func tiger_test(w http.ResponseWriter, req *http.Request) {
+	reqUd.Value = req
+	uid := req.Header["Uid"]
+	if uid == nil {
+		fmt.Println("Lack uid info!")
+		return
+	}
+	proto := luaByteCode[uid[0]]
+	if proto == nil {
+		fmt.Println("No script!")
+		return
+	}
+	lfunc := L.NewFunctionFromProto(proto)
+	L.Push(lfunc)
+	L.PCall(0, lua.MultRet, nil)
+}
+
 func NewServer(addr string) bool {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/bianyuan_test", bianyuan_test)
+	mux.HandleFunc("/tiger_test", tiger_test)
 	s := http.Server{Addr: addr, Handler: mux, ConnState: nil}
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -156,13 +190,43 @@ func NewServer(addr string) bool {
 	return true
 }
 
+func LoadLuaScript(scripts map[string]string) bool {
+	for name, content := range scripts {
+		r := strings.NewReader(content)
+		chunk, err := parse.Parse(r, "tiger")
+		if err != nil {
+			fmt.Println("Parse failed!")
+			return false
+		}
+		proto, err := lua.Compile(chunk, name)
+		if err != nil {
+			fmt.Println("Compile failed!")
+			return false
+		}
+		luaByteCode[name] = proto
+	}
+
+	/*fmt.Println(luaByteCode)*/
+	return true
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		luaStatement := string(os.Args[1])
 		fmt.Println("Lua statement:[%s]", luaStatement)
 	}
 
+	luaScripts := map[string]string{
+		"202020": "uri = waf.GetHttpField(0); print(\"uri:\"..uri)",
+		"202021": "host = waf.GetHttpField(1); print(\"host:\"..host)",
+		"202022": "cookie = waf.GetHttpField(2); print(\"cookie:\"..cookie)",
+		"202023": "agent = waf.GetHttpField(3); print(\"user-agent:\"..agent)",
+		"202024": "connection = waf.GetHttpField(4); print(\"connection:\"..connection)",
+		"202025": "uid = waf.GetHttpField(5); print(\"uid:\"..uid)",
+	}
+
 	InitLua()
-	TestLua()
-	NewServer("30.27.154.81:2020")
+	LoadLuaScript(luaScripts)
+	/*TestLua()*/
+	NewServer("30.27.153.142:2020")
 }
