@@ -7,5 +7,6 @@ go build -gcflags "-N -l" lua_demo.go
 go build -gcflags "-N -l" demo.go
 #cp -f ./go-lua-compare ~/Desktop
 
-#curl http://30.27.153.142:2020/tiger_test  -H "Host: www.tiger.com" -H "Cookie: test" -H "Connection: closed" -H "UID: 202021"
+#test script
+#curl http://30.27.153.142:2020/tiger_test -v -H "Host: www.tiger.com" -H "Cookie: test" -H "Connection: closed" -H "UID: 202021"
 

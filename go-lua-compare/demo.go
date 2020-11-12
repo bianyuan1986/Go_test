@@ -145,5 +145,5 @@ func main() {
 
 	InitLua()
 	LoadLuaScript(luaScripts)
-	NewServer("30.27.153.142:2020")
+	NewServer("30.27.153.132:2020")
 }
