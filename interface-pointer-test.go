@@ -12,6 +12,7 @@ type OutSt struct {
 	name string
 }
 
+/*实现了OutInf接口方法*/
 func (s *OutSt) Output() bool {
 	fmt.Printf("%s\n", s.name)
 
