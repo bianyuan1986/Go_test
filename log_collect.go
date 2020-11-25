@@ -3,8 +3,6 @@ package log_collect
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/aliyun/aliyun-log-go-sdk"
-	"github.com/aliyun/aliyun-log-go-sdk/producer"
 	"github.com/gogo/protobuf/proto"
 	"io/ioutil"
 	"os"
