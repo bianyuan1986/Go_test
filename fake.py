@@ -152,7 +152,14 @@ class PacketBuilder:
 
 def constructPacket():
     kvMap = {}
-    kvMap["A"*0x31] = "B"*0x32
+    kvMap["header.accept"] = "*/*" 
+    kvMap["header.content-type"] = "text/html" 
+    kvMap["header.user_agent"] = "tiger-browser" 
+    kvMap["header.referer"] = "www.fake.com" 
+    kvMap["header.cookie"] = "arg1=tiger&arg2=tiger2" 
+    kvMap["first_pkt"] = "true" 
+    kvMap["matched_host"] = "www.tiger.test.com" 
+    kvMap["uid"] = "270828" 
     bodyLen = 0
     for (k,v) in kvMap.items():
         bodyLen += 8
@@ -181,6 +188,6 @@ if __name__ == "__main__":
     try:
         s.connect(unix_sock_path)
         s.sendall(pkt)
-        print s.recv()
+        print s.recv(1024)
     finally:
         s.close()
