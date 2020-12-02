@@ -30,6 +30,7 @@
 
 import struct
 import socket
+import sys
 
 #(1,0,0,0)-->(b'\x01\x00\x00\x00')
 def BinaryDataToByteStr(data):
@@ -91,42 +92,40 @@ class PacketBuilder:
     body = ""
 
     def setBinary(self, data, byteLen):
-        byteArray = []
         if data <= 0:
             for i in range(0, byteLen):
-                byteArray.append(0x00)
-                return
+		c = struct.pack("<B", 0)
+            	self.payload += c 
+            return
 
         hexStr = hex(data)[2:]
-        print "0x%s" % hexStr
+        #print "0x%s" % hexStr
        
         sLen = len(hexStr)
         i = 1
+        byteArray = []
         for i in range(sLen-2, -1, -2):
             byte = int(hexStr[i], 16)*16+int(hexStr[i+1], 16)
             byteArray.append(byte)
-            print "byte:0x%x" % byte
         if i == 1:
             byte = int(hexStr[0], 16)
             byteArray.append(byte)
-            print "byte:0x%x" % byte
 
-        print range(byteLen-len(byteArray), byteLen)
         for i in range(0, byteLen-len(byteArray)):
             byteArray.append(0x00)
-        print byteArray
 
         for i in range(0, len(byteArray)):
-            self.payload += struct.pack("<B", byteArray[i])
+            c = struct.pack("<B", byteArray[i])
+            self.payload += c 
 
     def setVersion(self, version):
         self.setBinary(version, 2)
 
-    def setCodecType(self, data):
-        self.setBinary(0, 1)
+    def setCodecType(self, codecType):
+        self.setBinary(codecType, 1)
 
-    def setMsgType(self, data):
-        self.setBinary(0, 1)
+    def setMsgType(self, msgType):
+        self.setBinary(msgType, 1)
 
     def setDataLen(self, dLen):
         self.setBinary(dLen, 4)
@@ -157,7 +156,7 @@ def constructPacket():
     kvMap["header.user_agent"] = "tiger-browser" 
     kvMap["header.referer"] = "www.fake.com" 
     kvMap["header.cookie"] = "arg1=tiger&arg2=tiger2" 
-    kvMap["first_pkt"] = "true" 
+    #kvMap["first_pkt"] = "true" 
     kvMap["matched_host"] = "www.tiger.test.com" 
     kvMap["uid"] = "270828" 
     bodyLen = 0
@@ -174,17 +173,51 @@ def constructPacket():
     builder.setDataLen(bodyLen)
     builder.setRequestIdx(2)
     builder.setPadding(4)
+    print "headerLen:%d" % len(builder.string())
     for (k,v) in kvMap.items():
         builder.setKeyValue(k, v)
     pkt = builder.string()
-    print pkt
+    print "packetLen:%d" % len(pkt)
+    DumpPacket(pkt, len(pkt))
+
     return pkt
+
+def DumpPacket(data, dLen):
+    start = 0
+    sys.stdout.write("0x{0:04x} ".format(0))
+    for i in range(0, dLen):
+        if (i != 0) and (i % 16) == 0:
+            sys.stdout.write("  ")
+            for j in range(0, 16):
+                digit = ord(data[start+j])
+                if (digit >= 33) and (digit <= 126):
+                   sys.stdout.write(data[start+j])
+                else:
+                   sys.stdout.write(".")
+            print "\n"
+            sys.stdout.write("0x{0:04x} ".format(i))
+            start = i
+        str = "{0:02x} ".format(ord(data[i]))  
+        sys.stdout.write(str)
+
+    i = dLen
+    dLen = (dLen + 15) & (~15) 
+    for j in range(i, dLen):
+	sys.stdout.write("   ")
+    sys.stdout.write("  ")
+    for j in range(0, i-start):
+        digit = ord(data[start+j])
+        if (digit >= 33) and (digit <= 126):
+           sys.stdout.write(data[start+j])
+        else:
+           sys.stdout.write(".")
 
 unix_sock_path = "/home/admin/warden/run/ngwaf.sock"
 
 if __name__ == "__main__":
     pkt = constructPacket()
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sys.exit(0)
     try:
         s.connect(unix_sock_path)
         s.sendall(pkt)
