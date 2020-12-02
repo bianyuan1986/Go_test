@@ -211,13 +211,13 @@ def DumpPacket(data, dLen):
            sys.stdout.write(data[start+j])
         else:
            sys.stdout.write(".")
+    print "\n"
 
 unix_sock_path = "/home/admin/warden/run/ngwaf.sock"
 
 if __name__ == "__main__":
     pkt = constructPacket()
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sys.exit(0)
     try:
         s.connect(unix_sock_path)
         s.sendall(pkt)
