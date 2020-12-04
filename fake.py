@@ -88,8 +88,6 @@ def HexStrToHex(number):
 
 class PacketBuilder:
     payload = ""
-    header = ""
-    body = ""
 
     def setBinary(self, data, byteLen):
         if data <= 0:
@@ -158,7 +156,8 @@ def constructPacket():
     kvMap["header.cookie"] = "arg1=tiger&arg2=tiger2" 
     #kvMap["first_pkt"] = "true" 
     kvMap["matched_host"] = "www.tiger.test.com" 
-    kvMap["uid"] = "270828" 
+    kvMap["uid"] = "270828"
+    kvMap["uri"] = "/test.php?alert()"
     bodyLen = 0
     for (k,v) in kvMap.items():
         bodyLen += 8
@@ -221,6 +220,6 @@ if __name__ == "__main__":
     try:
         s.connect(unix_sock_path)
         s.sendall(pkt)
-        print s.recv(1024)
+        print "Warden response:\n%s" % s.recv(1024)
     finally:
         s.close()
