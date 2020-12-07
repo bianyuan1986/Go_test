@@ -1,0 +1,258 @@
+/*
+43 func ExternalInterface(v interface{}) {
+ 44     fmt.Println("Get struct!")
+ 45     d := v.(TestData)
+ 46     a := &d
+ 47     a.PrintName()
+ 48     fmt.Println("Get struct pointer!")
+ 49     v.(*TestData).PrintName()
+ 50 }
+ 51 
+ 52 func ExternalInterfacePointer(v *interface{}) {
+ 53 
+ 54 }
+ 55 
+ 56 func main() {
+ 57     fmt.Println("Go struct analysis!")
+ 58     a := TestData{name: "2020 Go!"}
+ 59     ExternalInterface(a)
+ 60     ExternalInterface(&a)
+ 61 }
+
+*/
+
+
+00000000004919e0 <main.main>:
+  4919e0:	64 48 8b 0c 25 f8 ff 	mov    %fs:0xfffffffffffffff8,%rcx
+  4919e7:	ff ff 
+  4919e9:	48 8d 44 24 f0       	lea    -0x10(%rsp),%rax
+  4919ee:	48 3b 41 10          	cmp    0x10(%rcx),%rax
+  4919f2:	0f 86 f0 00 00 00    	jbe    491ae8 <main.main+0x108>
+  4919f8:	48 81 ec 90 00 00 00 	sub    $0x90,%rsp
+  4919ff:	48 89 ac 24 88 00 00 	mov    %rbp,0x88(%rsp)
+  491a06:	00 
+  491a07:	48 8d ac 24 88 00 00 	lea    0x88(%rsp),%rbp
+  491a0e:	00 
+  491a0f:	0f 57 c0             	xorps  %xmm0,%xmm0
+  491a12:	0f 11 44 24 60       	movups %xmm0,0x60(%rsp)
+  491a17:	48 8d 44 24 60       	lea    0x60(%rsp),%rax
+  491a1c:	48 89 44 24 30       	mov    %rax,0x30(%rsp)
+  491a21:	84 00                	test   %al,(%rax)
+  491a23:	48 8d 0d 16 e1 00 00 	lea    0xe116(%rip),%rcx        # 49fb40 <type.*+0xdb40>
+  491a2a:	48 89 4c 24 60       	mov    %rcx,0x60(%rsp)
+  491a2f:	48 8d 0d fa 85 04 00 	lea    0x485fa(%rip),%rcx        # 4da030 <syscall.Syscall6.args_stackmap+0x180>
+  491a36:	48 89 4c 24 68       	mov    %rcx,0x68(%rsp)
+  491a3b:	84 00                	test   %al,(%rax)
+  491a3d:	eb 00                	jmp    491a3f <main.main+0x5f>
+  491a3f:	48 89 44 24 70       	mov    %rax,0x70(%rsp)
+  491a44:	48 c7 44 24 78 01 00 	movq   $0x1,0x78(%rsp)
+  491a4b:	00 00 
+  491a4d:	48 c7 84 24 80 00 00 	movq   $0x1,0x80(%rsp)
+  491a54:	00 01 00 00 00 
+  491a59:	48 89 04 24          	mov    %rax,(%rsp)
+  491a5d:	48 c7 44 24 08 01 00 	movq   $0x1,0x8(%rsp)
+  491a64:	00 00 
+  491a66:	48 c7 44 24 10 01 00 	movq   $0x1,0x10(%rsp)
+  491a6d:	00 00 
+  491a6f:	e8 1c 97 ff ff       	callq  48b190 <fmt.Println>
+  491a74:	0f 57 c0             	xorps  %xmm0,%xmm0
+  491a77:	0f 11 44 24 40       	movups %xmm0,0x40(%rsp)
+/*"2020 Go!"字符串的地址加载到%rax
+  491a7c:	48 8d 05 f3 e6 02 00 	lea    0x2e6f3(%rip),%rax        # 4c0176 <go.string.*+0x6de>
+/*把字符串地址保存到栈$rsp+0x40处*/
+  491a83:	48 89 44 24 40       	mov    %rax,0x40(%rsp)
+/*把字符串长度8保存到$rsp+0x48处，构造字符串对象TestData.name完毕*/
+  491a88:	48 c7 44 24 48 08 00 	movq   $0x8,0x48(%rsp)
+  491a8f:	00 00 
+/*拷贝字符串对象到$rsp+0x50处*/
+  491a91:	48 89 44 24 50       	mov    %rax,0x50(%rsp)
+  491a96:	48 c7 44 24 58 08 00 	movq   $0x8,0x58(%rsp)
+  491a9d:	00 00 
+/*
+(gdb) ptype v
+type = struct runtime.eface {
+    runtime._type *_type;
+    void *data;
+}
+(gdb) print v
+$2 = {_type = 0x4a9160, data = 0xc0000b0f40}
+设置interface{}类型的_type字段，相当于设置参数v
+*/
+  491a9f:	48 8d 05 ba 76 01 00 	lea    0x176ba(%rip),%rax        # 4a9160 <type.*+0x17160>
+  491aa6:	48 89 04 24          	mov    %rax,(%rsp)
+/*把字符串对象地址，即TestData对象的地址赋值给data字段*/
+  491aaa:	48 8d 44 24 50       	lea    0x50(%rsp),%rax
+  491aaf:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  491ab4:	e8 47 fd ff ff       	callq  491800 <main.ExternalInterface>
+/*把字符串对象地址即TestData的地址加载到%rax*/
+  491ab9:	48 8d 44 24 40       	lea    0x40(%rsp),%rax
+/*拷贝对象地址到%rsp+0x38处*/
+  491abe:	48 89 44 24 38       	mov    %rax,0x38(%rsp)
+/*初始化函数参数v，设置_type字段*/
+  491ac3:	48 8d 0d 76 43 01 00 	lea    0x14376(%rip),%rcx        # 4a5e40 <type.*+0x13e40>
+  491aca:	48 89 0c 24          	mov    %rcx,(%rsp)
+/*设置data字段，可以看到传递对象指针给interface{}类型相比与直接传递对象少了对象的拷贝过程，但是interface{}的data字段都是
+保存了对象的地址*/
+  491ace:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  491ad3:	e8 28 fd ff ff       	callq  491800 <main.ExternalInterface>
+  491ad8:	48 8b ac 24 88 00 00 	mov    0x88(%rsp),%rbp
+  491adf:	00 
+  491ae0:	48 81 c4 90 00 00 00 	add    $0x90,%rsp
+  491ae7:	c3                   	retq   
+  491ae8:	e8 83 82 fc ff       	callq  459d70 <runtime.morestack_noctxt>
+  491aed:	e9 ee fe ff ff       	jmpq   4919e0 <main.main>
+
+
+0000000000491800 <main.ExternalInterface>:
+  491800:	64 48 8b 0c 25 f8 ff 	mov    %fs:0xfffffffffffffff8,%rcx
+  491807:	ff ff 
+  491809:	48 8d 44 24 c8       	lea    -0x38(%rsp),%rax
+  49180e:	48 3b 41 10          	cmp    0x10(%rcx),%rax
+  491812:	0f 86 b5 01 00 00    	jbe    4919cd <main.ExternalInterface+0x1cd>
+/*$rsp+0x48处为返回地址*/
+  491818:	48 81 ec b8 00 00 00 	sub    $0xb8,%rsp
+  49181f:	48 89 ac 24 b0 00 00 	mov    %rbp,0xb0(%rsp)
+  491826:	00 
+  491827:	48 8d ac 24 b0 00 00 	lea    0xb0(%rsp),%rbp
+  49182e:	00 
+  49182f:	0f 57 c0             	xorps  %xmm0,%xmm0
+  491832:	0f 11 44 24 70       	movups %xmm0,0x70(%rsp)
+  491837:	48 8d 44 24 70       	lea    0x70(%rsp),%rax
+  49183c:	48 89 44 24 48       	mov    %rax,0x48(%rsp)
+  491841:	84 00                	test   %al,(%rax)
+  491843:	48 8d 0d f6 e2 00 00 	lea    0xe2f6(%rip),%rcx        # 49fb40 <type.*+0xdb40>
+  49184a:	48 89 4c 24 70       	mov    %rcx,0x70(%rsp)
+  49184f:	48 8d 0d ba 87 04 00 	lea    0x487ba(%rip),%rcx        # 4da010 <syscall.Syscall6.args_stackmap+0x160>
+  491856:	48 89 4c 24 78       	mov    %rcx,0x78(%rsp)
+  49185b:	84 00                	test   %al,(%rax)
+  49185d:	eb 00                	jmp    49185f <main.ExternalInterface+0x5f>
+  49185f:	48 89 84 24 98 00 00 	mov    %rax,0x98(%rsp)
+  491866:	00 
+  491867:	48 c7 84 24 a0 00 00 	movq   $0x1,0xa0(%rsp)
+  49186e:	00 01 00 00 00 
+  491873:	48 c7 84 24 a8 00 00 	movq   $0x1,0xa8(%rsp)
+  49187a:	00 01 00 00 00 
+  49187f:	48 89 04 24          	mov    %rax,(%rsp)
+  491883:	48 c7 44 24 08 01 00 	movq   $0x1,0x8(%rsp)
+  49188a:	00 00 
+  49188c:	48 c7 44 24 10 01 00 	movq   $0x1,0x10(%rsp)
+  491893:	00 00 
+/*调用fmt.Println("Get struct!")*/
+  491895:	e8 f6 98 ff ff       	callq  48b190 <fmt.Println>
+  49189a:	0f 57 c0             	xorps  %xmm0,%xmm0
+  49189d:	0f 11 44 24 60       	movups %xmm0,0x60(%rsp)
+/*把参数v的data字段保存到%rax中*/
+  4918a2:	48 8b 84 24 c8 00 00 	mov    0xc8(%rsp),%rax
+  4918a9:	00 
+/*把v的_type字段值保存到%rcx中*/
+  4918aa:	48 8b 8c 24 c0 00 00 	mov    0xc0(%rsp),%rcx
+  4918b1:	00 
+  4918b2:	48 8d 15 a7 78 01 00 	lea    0x178a7(%rip),%rdx        # 4a9160 <type.*+0x17160>
+/*比较type是否和interface{}的_type字段相等*/
+  4918b9:	48 39 d1             	cmp    %rdx,%rcx
+  4918bc:	74 05                	je     4918c3 <main.ExternalInterface+0xc3>
+  4918be:	e9 ef 00 00 00       	jmpq   4919b2 <main.ExternalInterface+0x1b2>
+/*type相等，把字符串对象长度保存到%rcx中，%rax指向字符串对象首地址，字符串对象包括str和len成员*/
+  4918c3:	48 8b 48 08          	mov    0x8(%rax),%rcx
+/*
+(gdb) print $rsp+0xb8
+$11 = (void *) 0xc0000b0ee8
+(gdb) x /3xg $11
+0xc0000b0ee8:	0x0000000000491ab9	0x00000000004a9160
+0xc0000b0ef8:	0x000000c0000b0f40
+(gdb) x /2xg 0xc0000b0f40
+0xc0000b0f40:	0x00000000004c0176	0x0000000000000008
+(gdb) x /s 0x4c0176
+0x4c0176:	"2020 Go!48828125ArmenianBalineseBopomofoBugineseCherokeeCyrillicDuployanEthiopicExtenderGODEBUG=GeorgianGoStringGujaratiGurmukhiHiraganaJavaneseKatakanaKayah_LiLinear_ALinear_BMahajaniOl_ChikiPhags_Pa"...
+
+data指向的实际是个字符串对象，此处相当于把字符串地址保存到%rax中，即%rax+0处保存的字符串地址，$rax指向的是字符串对象地址*/
+  4918c7:	48 8b 00             	mov    (%rax),%rax
+/*字符串地址保存到栈$rsp+0x60处*/
+  4918ca:	48 89 44 24 60       	mov    %rax,0x60(%rsp)
+/*字符串长度保存到栈$rsp+0x68处*/
+  4918cf:	48 89 4c 24 68       	mov    %rcx,0x68(%rsp)
+/*拷贝字符串对象到栈$rsp+0x50处*/
+  4918d4:	48 89 44 24 50       	mov    %rax,0x50(%rsp)
+  4918d9:	48 89 4c 24 58       	mov    %rcx,0x58(%rsp)
+/*获取字符串对象地址，即TestData对象地址，a := &d*/
+  4918de:	48 8d 44 24 50       	lea    0x50(%rsp),%rax
+  4918e3:	48 89 44 24 30       	mov    %rax,0x30(%rsp)
+/*传递a作为PrintName的参数*/
+  4918e8:	48 89 04 24          	mov    %rax,(%rsp)
+/*调用a.PrintName*/
+  4918ec:	e8 3f fe ff ff       	callq  491730 <main.(*TestData).PrintName>
+  4918f1:	0f 57 c0             	xorps  %xmm0,%xmm0
+  4918f4:	0f 11 44 24 70       	movups %xmm0,0x70(%rsp)
+  4918f9:	48 8d 44 24 70       	lea    0x70(%rsp),%rax
+  4918fe:	48 89 44 24 40       	mov    %rax,0x40(%rsp)
+  491903:	84 00                	test   %al,(%rax)
+  491905:	48 8d 0d 34 e2 00 00 	lea    0xe234(%rip),%rcx        # 49fb40 <type.*+0xdb40>
+  49190c:	48 89 4c 24 70       	mov    %rcx,0x70(%rsp)
+  491911:	48 8d 0d 08 87 04 00 	lea    0x48708(%rip),%rcx        # 4da020 <syscall.Syscall6.args_stackmap+0x170>
+  491918:	48 89 4c 24 78       	mov    %rcx,0x78(%rsp)
+  49191d:	84 00                	test   %al,(%rax)
+  49191f:	eb 00                	jmp    491921 <main.ExternalInterface+0x121>
+  491921:	48 89 84 24 80 00 00 	mov    %rax,0x80(%rsp)
+  491928:	00 
+  491929:	48 c7 84 24 88 00 00 	movq   $0x1,0x88(%rsp)
+  491930:	00 01 00 00 00 
+  491935:	48 c7 84 24 90 00 00 	movq   $0x1,0x90(%rsp)
+  49193c:	00 01 00 00 00 
+  491941:	48 89 04 24          	mov    %rax,(%rsp)
+  491945:	48 c7 44 24 08 01 00 	movq   $0x1,0x8(%rsp)
+  49194c:	00 00 
+  49194e:	48 c7 44 24 10 01 00 	movq   $0x1,0x10(%rsp)
+  491955:	00 00 
+/*调用fmt.Println("Get struct pointer!")*/
+  491957:	e8 34 98 ff ff       	callq  48b190 <fmt.Println>
+/*保存v的data字段，即TestData对象的地址*/
+  49195c:	48 8b 84 24 c8 00 00 	mov    0xc8(%rsp),%rax
+  491963:	00 
+/*保存v的_type字段*/
+  491964:	48 8b 8c 24 c0 00 00 	mov    0xc0(%rsp),%rcx
+  49196b:	00 
+  49196c:	48 8d 15 cd 44 01 00 	lea    0x144cd(%rip),%rdx        # 4a5e40 <type.*+0x13e40>
+/*比较type是否相等*/
+  491973:	48 39 d1             	cmp    %rdx,%rcx
+  491976:	74 02                	je     49197a <main.ExternalInterface+0x17a>
+  491978:	eb 1e                	jmp    491998 <main.ExternalInterface+0x198>
+/**/
+  49197a:	48 89 44 24 38       	mov    %rax,0x38(%rsp)
+/*把TestData对象的地址入栈，调用v.(*TestData).PrintName()*/
+  49197f:	48 89 04 24          	mov    %rax,(%rsp)
+  491983:	e8 a8 fd ff ff       	callq  491730 <main.(*TestData).PrintName>
+  491988:	48 8b ac 24 b0 00 00 	mov    0xb0(%rsp),%rbp
+  49198f:	00 
+  491990:	48 81 c4 b8 00 00 00 	add    $0xb8,%rsp
+  491997:	c3                   	retq   
+  491998:	48 89 0c 24          	mov    %rcx,(%rsp)
+  49199c:	48 89 54 24 08       	mov    %rdx,0x8(%rsp)
+  4919a1:	48 8d 05 78 3e 01 00 	lea    0x13e78(%rip),%rax        # 4a5820 <type.*+0x13820>
+  4919a8:	48 89 44 24 10       	mov    %rax,0x10(%rsp)
+  4919ad:	e8 8e 76 f7 ff       	callq  409040 <runtime.panicdottypeE>
+  4919b2:	48 89 0c 24          	mov    %rcx,(%rsp)
+  4919b6:	48 89 54 24 08       	mov    %rdx,0x8(%rsp)
+  4919bb:	48 8d 05 5e 3e 01 00 	lea    0x13e5e(%rip),%rax        # 4a5820 <type.*+0x13820>
+  4919c2:	48 89 44 24 10       	mov    %rax,0x10(%rsp)
+  4919c7:	e8 74 76 f7 ff       	callq  409040 <runtime.panicdottypeE>
+  4919cc:	90                   	nop
+  4919cd:	e8 9e 83 fc ff       	callq  459d70 <runtime.morestack_noctxt>
+  4919d2:	e9 29 fe ff ff       	jmpq   491800 <main.ExternalInterface>
+  4919d7:	cc                   	int3   
+  4919d8:	cc                   	int3   
+  4919d9:	cc                   	int3   
+  4919da:	cc                   	int3   
+  4919db:	cc                   	int3   
+  4919dc:	cc                   	int3   
+  4919dd:	cc                   	int3   
+  4919de:	cc                   	int3   
+  4919df:	cc                   	int3   
+
+
+/*
+如果函数的参数声明为interface{}类型，当直接传递对象类型时会在栈上拷贝一个对象，然后把interface{}的data字段指向该拷贝
+对象的首地址，如果是传递对象指针，则直接把对象指针即原始对象的首地址保存到interface{}的data字段，应该是传递指针更
+高效一些；
+在函数内部进行解引用去获取对象并调用对象方法，假设对象方法的接收者声明为指针类型，如果通过v.(TestData)获取对象则会
+根据interface{}的data字段取出对象然后获取地址，相当于有拷贝，然后该地址入栈并调用对象方法A.Method();
+如果通过v.(*TestData)则只需直接把interface{}的data字段入栈并调用对象方法，应该是后者效率更高一些*/
