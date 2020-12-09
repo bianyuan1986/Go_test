@@ -47,8 +47,9 @@ func GetHttpField(l *lua.LState) int {
 	}
 
 	l.Push(lua.LString(result))
+	l.Push(lua.LNumber(len(result)))
 
-	return 1
+	return 2
 }
 
 func SetResult(l *lua.LState) int {
@@ -135,15 +136,15 @@ func LoadLuaScript(scripts map[string]string) bool {
 
 func main() {
 	luaScripts := map[string]string{
-		"202020": "uri = waf.GetHttpField(0); result = \"uri:\"..uri; waf.SetResult(result); print(result)",
-		"202021": "host = waf.GetHttpField(1); result = \"host:\"..host; waf.SetResult(result); print(result)",
-		"202022": "cookie = waf.GetHttpField(2); result = \"cookie:\"..cookie; waf.SetResult(result); print(result)",
-		"202023": "agent = waf.GetHttpField(3); result = \"user-agent:\"..agent; waf.SetResult(result); print(result)",
-		"202024": "connection = waf.GetHttpField(4); result = \"connection:\"..connection; waf.SetResult(result); print(result)",
-		"202025": "uid = waf.GetHttpField(5); result = \"uid:\"..uid; waf.SetResult(result)print(result)",
+		"202020": "uri,len = waf.GetHttpField(0); print(\"Len:\", len); result = \"uri:\"..uri; waf.SetResult(result); print(result)",
+		"202021": "host,len = waf.GetHttpField(1); print(\"Len:\", len); result = \"host:\"..host; waf.SetResult(result); print(result)",
+		"202022": "cookie,len = waf.GetHttpField(2); print(\"Len:\", len); result = \"cookie:\"..cookie; waf.SetResult(result); print(result)",
+		"202023": "agent,len = waf.GetHttpField(3); print(\"Len:\", len); result = \"user-agent:\"..agent; waf.SetResult(result); print(result)",
+		"202024": "connection,len = waf.GetHttpField(4); print(\"Len:\", len); result = \"connection:\"..connection; waf.SetResult(result); print(result)",
+		"202025": "uid,len = waf.GetHttpField(5); print(\"Len:\", len); result = \"uid:\"..uid; waf.SetResult(result)print(result)",
 	}
 
 	InitLua()
 	LoadLuaScript(luaScripts)
-	NewServer("30.27.153.132:2020")
+	NewServer("30.27.153.141:2020")
 }
