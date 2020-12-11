@@ -258,3 +258,389 @@ data指向的实际是个字符串对象，此处相当于把字符串地址保�
 如果通过v.(*TestData)则只需直接把interface{}的data字段入栈并调用对象方法，应该是后者效率更高一些。
 在函数内部解引用时，如果传递参数是传递的对象，则只能通过v.(TestData)获取，如果传递的是对象指针则只能通过v.(*TestData)获取，
 传递对象时进行了对象拷贝，传递对象指针时进行了地址拷贝，所以如果传递对象，但是通过v.(*TestData)获取则会报告运行时错误*/
+
+
+/*
+ 43 func ByteToStringAnalysis() {
+ 44     var data []byte
+ 45     data = make([]byte, 5, 7)
+ 46     for i := 0; i < 5; i++ {
+ 47         data[i] = byte(101 + i)
+ 48     }
+ 49     str := string(data[:])
+ 50     fmt.Println("Str:", str)
+ 51 }
+
+ 66 func main() {
+ 67     /*fmt.Println("Go struct analysis!")
+ 68     a := TestData{name: "2020 Go!"}
+ 69     ExternalInterface(a)
+ 70     ExternalInterface(&a)*/
+ 71     ByteToStringAnalysis()
+ 72 }
+*/
+
+0000000000491730 <main.ByteToStringAnalysis>:
+  491730:	64 48 8b 0c 25 f8 ff 	mov    %fs:0xfffffffffffffff8,%rcx
+  491737:	ff ff 
+  491739:	48 8d 44 24 b0       	lea    -0x50(%rsp),%rax
+  49173e:	48 3b 41 10          	cmp    0x10(%rcx),%rax
+  491742:	0f 86 d6 01 00 00    	jbe    49191e <main.ByteToStringAnalysis+0x1ee>
+/*$rsp+0xd0为返回地址*/
+  491748:	48 81 ec d0 00 00 00 	sub    $0xd0,%rsp     
+  49174f:	48 89 ac 24 c8 00 00 	mov    %rbp,0xc8(%rsp)
+  491756:	00 
+  491757:	48 8d ac 24 c8 00 00 	lea    0xc8(%rsp),%rbp
+  49175e:	00 
+  49175f:	48 c7 44 24 60 00 00 	movq   $0x0,0x60(%rsp)
+  491766:	00 00 
+  491768:	0f 57 c0             	xorps  %xmm0,%xmm0
+  49176b:	0f 11 44 24 68       	movups %xmm0,0x68(%rsp)
+  491770:	c7 44 24 31 00 00 00 	movl   $0x0,0x31(%rsp)
+  491777:	00 
+  491778:	c7 44 24 34 00 00 00 	movl   $0x0,0x34(%rsp)
+  49177f:	00 
+  491780:	48 8d 54 24 31       	lea    0x31(%rsp),%rdx
+  491785:	84 02                	test   %al,(%rdx)
+  491787:	eb 00                	jmp    491789 <main.ByteToStringAnalysis+0x59>
+  491789:	eb 00                	jmp    49178b <main.ByteToStringAnalysis+0x5b>
+/*初始化[]byte数据结构，实际为slice结构，数据地址为$rsp+0x31*/
+  49178b:	48 89 54 24 60       	mov    %rdx,0x60(%rsp)
+/*元素个数*/
+  491790:	48 c7 44 24 68 05 00 	movq   $0x5,0x68(%rsp)
+  491797:	00 00 
+/*slice容量*/
+  491799:	48 c7 44 24 70 07 00 	movq   $0x7,0x70(%rsp)
+  4917a0:	00 00 
+/*i=0，i存储在$rsp+0x38处*/
+  4917a2:	48 c7 44 24 38 00 00 	movq   $0x0,0x38(%rsp)
+  4917a9:	00 00 
+  4917ab:	eb 00                	jmp    4917ad <main.ByteToStringAnalysis+0x7d>
+/*判断i < 5*/
+  4917ad:	48 83 7c 24 38 05    	cmpq   $0x5,0x38(%rsp)
+  4917b3:	7c 02                	jl     4917b7 <main.ByteToStringAnalysis+0x87>
+  4917b5:	eb 36                	jmp    4917ed <main.ByteToStringAnalysis+0xbd>
+/*如果i < 5，i的值保存到%rax*/
+  4917b7:	48 8b 44 24 38       	mov    0x38(%rsp),%rax
+/*slice中元素个数*/
+  4917bc:	48 8b 4c 24 68       	mov    0x68(%rsp),%rcx
+/*byte对应的slice中的数据区首地址*/
+  4917c1:	48 8b 54 24 60       	mov    0x60(%rsp),%rdx
+/*把i的值保存到$rbx*/
+  4917c6:	48 8b 5c 24 38       	mov    0x38(%rsp),%rbx
+/*101+i*/
+  4917cb:	48 83 c3 65          	add    $0x65,%rbx
+  4917cf:	48 39 c8             	cmp    %rcx,%rax
+  4917d2:	72 05                	jb     4917d9 <main.ByteToStringAnalysis+0xa9>
+  4917d4:	e9 3f 01 00 00       	jmpq   491918 <main.ByteToStringAnalysis+0x1e8>
+/*data[i]=byte(101+i)，%rdx为数据首地址，%rax为i的值，%bl转换int为byte类型*/
+  4917d9:	88 1c 02             	mov    %bl,(%rdx,%rax,1)
+  4917dc:	eb 00                	jmp    4917de <main.ByteToStringAnalysis+0xae>
+/*i保存到%rdx*/
+  4917de:	48 8b 54 24 38       	mov    0x38(%rsp),%rdx
+/*i++*/
+  4917e3:	48 ff c2             	inc    %rdx
+/*把i的值从寄存器写回栈$rsp+0x38*/
+  4917e6:	48 89 54 24 38       	mov    %rdx,0x38(%rsp)
+/*循环跳转*/
+  4917eb:	eb c0                	jmp    4917ad <main.ByteToStringAnalysis+0x7d>
+/*i>=5则执行该逻辑，数据首地址保存到%rax*/
+  4917ed:	48 8b 44 24 60       	mov    0x60(%rsp),%rax
+/*节点个数保存到%rcx*/
+  4917f2:	48 8b 4c 24 68       	mov    0x68(%rsp),%rcx
+/*slice容量保存到%rdx*/
+  4917f7:	48 8b 54 24 70       	mov    0x70(%rsp),%rdx
+/*拷贝slice头部到$rsp+0x90处，数据不拷贝*/
+  4917fc:	48 89 84 24 90 00 00 	mov    %rax,0x90(%rsp)
+  491803:	00 
+  491804:	48 89 8c 24 98 00 00 	mov    %rcx,0x98(%rsp)
+  49180b:	00 
+  49180c:	48 89 94 24 a0 00 00 	mov    %rdx,0xa0(%rsp)
+  491813:	00 
+/*func slicebytetostring(buf *tmpBuf, b []byte) (str string)，传递参数，第一个参数为0*/
+  491814:	48 c7 04 24 00 00 00 	movq   $0x0,(%rsp)
+  49181b:	00 
+/*[]byte参数*/
+  49181c:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  491821:	48 89 4c 24 10       	mov    %rcx,0x10(%rsp)
+  491826:	48 89 54 24 18       	mov    %rdx,0x18(%rsp)
+/*string(data[:])实际调用slicebytetostring*/
+  49182b:	e8 e0 63 fb ff       	callq  447c10 <runtime.slicebytetostring>
+/*字符串数据首地址，返回的string对象*/
+  491830:	48 8b 44 24 20       	mov    0x20(%rsp),%rax
+/*字符串长度*/
+  491835:	48 8b 4c 24 28       	mov    0x28(%rsp),%rcx
+/*拷贝string头部到$rsp+0x50*/
+  49183a:	48 89 44 24 50       	mov    %rax,0x50(%rsp)
+  49183f:	48 89 4c 24 58       	mov    %rcx,0x58(%rsp)
+  491844:	48 8b 44 24 50       	mov    0x50(%rsp),%rax
+  491849:	48 8b 4c 24 58       	mov    0x58(%rsp),%rcx
+/*字符串对象入栈*/
+  49184e:	48 89 04 24          	mov    %rax,(%rsp)
+  491852:	48 89 4c 24 08       	mov    %rcx,0x8(%rsp)
+/*func convTstring(val string) (x unsafe.Pointer)，转换为int*类型返回string对象的地址*/
+  491857:	e8 04 7b f7 ff       	callq  409360 <runtime.convTstring>
+/*$rsp+0x10处存放的是string对象地址，即*string*/
+  49185c:	48 8b 44 24 10       	mov    0x10(%rsp),%rax
+/*把字符串对象str的地址保存到$rsp+0x48处*/
+  491861:	48 89 44 24 48       	mov    %rax,0x48(%rsp)
+  491866:	0f 57 c0             	xorps  %xmm0,%xmm0
+  491869:	0f 11 84 24 a8 00 00 	movups %xmm0,0xa8(%rsp)
+  491870:	00 
+/*(gdb) print /x $xmm0
+$2 = {v4_float = {0x0, 0x0, 0x0, 0x0}, v2_double = {0x0, 0x0}, v16_int8 = {0x0 <repeats 16 times>}, v8_int16 = {0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0}, v4_int32 = {0x0, 0x0, 0x0, 0x0}, v2_int64 = {0x0, 0x0},
+  uint128 = 0x00000000000000000000000000000000}
+128位寄存器，$rsp+0xa8向后32个字节清零*/
+  491871:	0f 57 c0             	xorps  %xmm0,%xmm0
+  491874:	0f 11 84 24 b8 00 00 	movups %xmm0,0xb8(%rsp)
+  49187b:	00 
+/*%rsp+0xa8地址加载到$rax*/
+  49187c:	48 8d 84 24 a8 00 00 	lea    0xa8(%rsp),%rax
+  491883:	00 
+/*把$rsp+0xa8地址保存到$rsp+0x40*/
+  491884:	48 89 44 24 40       	mov    %rax,0x40(%rsp)
+  491889:	84 00                	test   %al,(%rax)
+  49188b:	48 8d 0d 8e e2 00 00 	lea    0xe28e(%rip),%rcx        # 49fb20 <type.*+0xdb20>
+/*
+---------------               ------------- ------
+|     array   |-------------->|    _type  |    |
+---------------               -------------  array[0]
+|     len     |               |    data   |    |
+---------------               ------------- ------
+|     cap     |               |    _type  |    |
+---------------               -------------  array[1]
+                              |    data   |    |
+                              ------------- ------
+
+*/
+/*%rsp+0xa8指向的栈地址属于main函数，设置type，开始初始化array[0]*/
+  491892:	48 89 8c 24 a8 00 00 	mov    %rcx,0xa8(%rsp)
+  491899:	00 
+/*"Str:"字符串对象的地址*/
+  49189a:	48 8d 0d 0f 86 04 00 	lea    0x4860f(%rip),%rcx        # 4d9eb0 <syscall.Syscall6.args_stackmap+0x160>
+/*设置%rsp+0xb0，即data字段，第一个interface{}对象初始化完成*/
+  4918a1:	48 89 8c 24 b0 00 00 	mov    %rcx,0xb0(%rsp)
+  4918a8:	00 
+  4918a9:	84 00                	test   %al,(%rax)
+/*把str字符串对象地址保存到$rax*/
+  4918ab:	48 8b 44 24 48       	mov    0x48(%rsp),%rax
+  4918b0:	48 8d 0d 69 e2 00 00 	lea    0xe269(%rip),%rcx        # 49fb20 <type.*+0xdb20>
+/*设置%rsp+0xb8位type，开始初始化array[1]*/
+  4918b7:	48 89 8c 24 b8 00 00 	mov    %rcx,0xb8(%rsp)
+  4918be:	00 
+/*设置data字段为字符串对象str的地址，第二个interface{}对象初始化完成*/
+  4918bf:	48 89 84 24 c0 00 00 	mov    %rax,0xc0(%rsp)
+  4918c6:	00 
+/*此时$rsp+0x40处保存的是$rsp+0x80的地址，即[]interface{}的地址，即array[2]的首地址*/
+  4918c7:	48 8b 44 24 40       	mov    0x40(%rsp),%rax
+  4918cc:	84 00                	test   %al,(%rax)
+  4918ce:	eb 00                	jmp    4918d0 <main.ByteToStringAnalysis+0x1a0>
+/*初始化slice，此处把array[2]的首地址保存到array*/
+  4918d0:	48 89 44 24 78       	mov    %rax,0x78(%rsp)
+/*节点个数*/
+  4918d5:	48 c7 84 24 80 00 00 	movq   $0x2,0x80(%rsp)
+  4918dc:	00 02 00 00 00 
+/*slice容量*/
+  4918e1:	48 c7 84 24 88 00 00 	movq   $0x2,0x88(%rsp)
+  4918e8:	00 02 00 00 00 
+/*
+594 (gdb) ptype a
+595 type = struct []interface {} {
+596     interface {} *array;
+597     int len;
+598     int cap;
+599 }
+slice类型，每个节点类型为interface{}
+Println的第一个参数入栈，此处是设置的array*/
+  4918ed:	48 89 04 24          	mov    %rax,(%rsp)
+/*节点个数2*/
+  4918f1:	48 c7 44 24 08 02 00 	movq   $0x2,0x8(%rsp)
+  4918f8:	00 00 
+/*容量为2*/
+  4918fa:	48 c7 44 24 10 02 00 	movq   $0x2,0x10(%rsp)
+  491901:	00 00 
+/*func Println(a ...interface{}) (n int, err error)*/
+  491903:	e8 88 98 ff ff       	callq  48b190 <fmt.Println>
+  491908:	48 8b ac 24 c8 00 00 	mov    0xc8(%rsp),%rbp
+  49190f:	00 
+  491910:	48 81 c4 d0 00 00 00 	add    $0xd0,%rsp
+  491917:	c3                   	retq   
+  491918:	e8 03 ac fc ff       	callq  45c520 <runtime.panicIndex>
+  49191d:	90                   	nop
+  49191e:	e8 4d 84 fc ff       	callq  459d70 <runtime.morestack_noctxt>
+  491923:	e9 08 fe ff ff       	jmpq   491730 <main.ByteToStringAnalysis>
+  491928:	cc                   	int3   
+  491929:	cc                   	int3   
+  49192a:	cc                   	int3   
+  49192b:	cc                   	int3   
+  49192c:	cc                   	int3   
+  49192d:	cc                   	int3   
+  49192e:	cc                   	int3   
+  49192f:	cc                   	int3   
+
+
+
+0000000000491930 <main.main>:
+  491930:	64 48 8b 0c 25 f8 ff 	mov    %fs:0xfffffffffffffff8,%rcx
+  491937:	ff ff 
+  491939:	48 3b 61 10          	cmp    0x10(%rcx),%rsp
+  49193d:	76 1a                	jbe    491959 <main.main+0x29>
+  49193f:	48 83 ec 08          	sub    $0x8,%rsp
+  491943:	48 89 2c 24          	mov    %rbp,(%rsp)
+  491947:	48 8d 2c 24          	lea    (%rsp),%rbp
+  49194b:	e8 e0 fd ff ff       	callq  491730 <main.ByteToStringAnalysis>
+  491950:	48 8b 2c 24          	mov    (%rsp),%rbp
+  491954:	48 83 c4 08          	add    $0x8,%rsp
+  491958:	c3                   	retq   
+  491959:	e8 12 84 fc ff       	callq  459d70 <runtime.morestack_noctxt>
+  49195e:	eb d0                	jmp    491930 <main.main>
+
+0000000000491960 <type..eq.[2]interface {}>:
+  491960:	64 48 8b 0c 25 f8 ff 	mov    %fs:0xfffffffffffffff8,%rcx
+  491967:	ff ff 
+  491969:	48 3b 61 10          	cmp    0x10(%rcx),%rsp
+  49196d:	0f 86 db 00 00 00    	jbe    491a4e <type..eq.[2]interface {}+0xee>
+  491973:	48 83 ec 60          	sub    $0x60,%rsp
+  491977:	48 89 6c 24 58       	mov    %rbp,0x58(%rsp)
+  49197c:	48 8d 6c 24 58       	lea    0x58(%rsp),%rbp
+  491981:	c6 44 24 78 00       	movb   $0x0,0x78(%rsp)
+  491986:	48 c7 44 24 30 00 00 	movq   $0x0,0x30(%rsp)
+  49198d:	00 00 
+  49198f:	48 c7 44 24 28 02 00 	movq   $0x2,0x28(%rsp)
+  491996:	00 00 
+  491998:	eb 00                	jmp    49199a <type..eq.[2]interface {}+0x3a>
+  49199a:	48 8b 44 24 28       	mov    0x28(%rsp),%rax
+  49199f:	48 39 44 24 30       	cmp    %rax,0x30(%rsp)
+  4919a4:	7c 05                	jl     4919ab <type..eq.[2]interface {}+0x4b>
+  4919a6:	e9 94 00 00 00       	jmpq   491a3f <type..eq.[2]interface {}+0xdf>
+  4919ab:	48 8b 44 24 30       	mov    0x30(%rsp),%rax
+  4919b0:	48 89 44 24 20       	mov    %rax,0x20(%rsp)
+  4919b5:	48 c1 e0 04          	shl    $0x4,%rax
+  4919b9:	48 03 44 24 70       	add    0x70(%rsp),%rax
+  4919be:	48 8b 48 08          	mov    0x8(%rax),%rcx
+  4919c2:	48 8b 00             	mov    (%rax),%rax
+  4919c5:	48 89 44 24 48       	mov    %rax,0x48(%rsp)
+  4919ca:	48 89 4c 24 50       	mov    %rcx,0x50(%rsp)
+  4919cf:	48 8b 44 24 20       	mov    0x20(%rsp),%rax
+  4919d4:	48 c1 e0 04          	shl    $0x4,%rax
+  4919d8:	48 03 44 24 68       	add    0x68(%rsp),%rax
+  4919dd:	48 8b 48 08          	mov    0x8(%rax),%rcx
+  4919e1:	48 8b 00             	mov    (%rax),%rax
+  4919e4:	48 89 44 24 38       	mov    %rax,0x38(%rsp)
+  4919e9:	48 89 4c 24 40       	mov    %rcx,0x40(%rsp)
+  4919ee:	48 39 44 24 48       	cmp    %rax,0x48(%rsp)
+  4919f3:	75 02                	jne    4919f7 <type..eq.[2]interface {}+0x97>
+  4919f5:	eb 11                	jmp    491a08 <type..eq.[2]interface {}+0xa8>
+  4919f7:	eb 00                	jmp    4919f9 <type..eq.[2]interface {}+0x99>
+  4919f9:	c6 44 24 78 00       	movb   $0x0,0x78(%rsp)
+  4919fe:	48 8b 6c 24 58       	mov    0x58(%rsp),%rbp
+  491a03:	48 83 c4 60          	add    $0x60,%rsp
+  491a07:	c3                   	retq   
+  491a08:	48 89 04 24          	mov    %rax,(%rsp)
+  491a0c:	48 89 4c 24 08       	mov    %rcx,0x8(%rsp)
+  491a11:	48 8b 44 24 50       	mov    0x50(%rsp),%rax
+  491a16:	48 89 44 24 10       	mov    %rax,0x10(%rsp)
+  491a1b:	e8 a0 19 f7 ff       	callq  4033c0 <runtime.efaceeq>
+  491a20:	80 7c 24 18 00       	cmpb   $0x0,0x18(%rsp)
+  491a25:	75 02                	jne    491a29 <type..eq.[2]interface {}+0xc9>
+  491a27:	eb 14                	jmp    491a3d <type..eq.[2]interface {}+0xdd>
+  491a29:	eb 00                	jmp    491a2b <type..eq.[2]interface {}+0xcb>
+  491a2b:	48 8b 44 24 30       	mov    0x30(%rsp),%rax
+  491a30:	48 ff c0             	inc    %rax
+  491a33:	48 89 44 24 30       	mov    %rax,0x30(%rsp)
+  491a38:	e9 5d ff ff ff       	jmpq   49199a <type..eq.[2]interface {}+0x3a>
+  491a3d:	eb ba                	jmp    4919f9 <type..eq.[2]interface {}+0x99>
+  491a3f:	c6 44 24 78 01       	movb   $0x1,0x78(%rsp)
+  491a44:	48 8b 6c 24 58       	mov    0x58(%rsp),%rbp
+  491a49:	48 83 c4 60          	add    $0x60,%rsp
+  491a4d:	c3                   	retq   
+  491a4e:	e8 1d 83 fc ff       	callq  459d70 <runtime.morestack_noctxt>
+  491a53:	e9 08 ff ff ff       	jmpq   491960 <type..eq.[2]interface {}>
+
+
+(gdb) run
+Starting program: /home/baohu.rbh/struct
+
+Breakpoint 1, main.ByteToStringAnalysis () at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:43
+43	/Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go: No such file or directory.
+(gdb) bt
+#0  main.ByteToStringAnalysis () at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:43
+#1  0x0000000000491950 in main.main () at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:71
+(gdb) x /1xg $rsp
+0xc0000b0f70:	0x0000000000491950
+(gdb) break *0x491830
+Breakpoint 2 at 0x491830: file /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go, line 49.
+(gdb) c
+Continuing.
+
+Breakpoint 2, 0x0000000000491830 in main.ByteToStringAnalysis ()
+    at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:49
+49	in /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go
+(gdb) x /1xg $rsp+0x20
+0xc0000b0ec0:	0x000000c00018c000
+(gdb) x /2xg $rsp+0x20
+0xc0000b0ec0:	0x000000c00018c000	0x0000000000000005
+(gdb) x /s 0xc00018c000
+0xc00018c000:	"efghi"
+(gdb) print /c 101
+$1 = 101 'e'
+(gdb) break *0x49185c
+Breakpoint 3 at 0x49185c: file /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go, line 50.
+(gdb) c
+Continuing.
+
+Breakpoint 3, 0x000000000049185c in main.ByteToStringAnalysis ()
+    at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:50
+50	in /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go
+(gdb) x /1xg $rsp+0x10   /*string指针类型*/
+0xc0000b0eb0:	0x000000c00018a040
+(gdb) x /2xg 0xc00018a040  /*查看该string指针指向的string头部信息*/
+0xc00018a040:	0x000000c00018c000	0x0000000000000005
+(gdb)
+
+/*
+string类型和[]byte类型互相转换的过程是有内存分配和拷贝的过程，从string类型转换为[]byte的过程中如果字符串长度小于32则可以省去内存分配的过程，但是数据拷贝过程不能避免，所以string和[]byte类型互相转换的过程是有比较大的性能开销的，尤其是字符串长度比较长的情况。函数可以指定返回参数的名称，调用函数时会把返回值作为参数入栈。
+*/
+
+/*Println函数原型func Println(a ...interface{}) (n int, err error)*/
+(gdb) stepi     /*可以看到指定名称的返回值被当作参数入栈*/
+fmt.Println (a=..., n=<optimized out>, err=...) at /usr/local/go/src/fmt/print.go:273
+273	func Println(a ...interface{}) (n int, err error) {
+(gdb) print $rsp
+$11 = (void *) 0xc0000b0e98
+(gdb) x /4xg $rsp /*可以看到返回地址和第一个参数*/
+0xc0000b0e98:	0x0000000000491908	0x000000c0000b0f48
+0xc0000b0ea8:	0x0000000000000002	0x0000000000000002
+(gdb) print a /*第一个参数a*/
+$12 = {array = 0xc0000b0f48, len = 2, cap = 2}
+(gdb) bt
+#0  fmt.Println (a=..., n=<optimized out>, err=...) at /usr/local/go/src/fmt/print.go:273
+#1  0x0000000000491908 in main.ByteToStringAnalysis ()
+    at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:50
+#2  0x0000000000491950 in main.main () at /Users/bianyuan/Desktop/workspace/test/Go_test/go_struct_analysis/struct.go:71
+(gdb) ptype a
+type = struct []interface {} {
+    interface {} *array;
+    int len;
+    int cap;
+}
+(gdb) ptype a.array
+type = struct runtime.eface {
+    runtime._type *_type;
+    void *data;
+} *
+(gdb) x /1xg a.array
+0xc0000b0f48:	0x000000000049fb20
+(gdb) x /2xg a.array.data /*a中第一个节点内容，常量字符串"Str:"*/
+0x4d9eb0:	0x00000000004bfaed	0x0000000000000004
+(gdb) x /s 0x4bfaed
+0x4bfaed:	"Str:Thai\n\tm=] = ] n=avx2basebmi1bmi2boolcallcas1cas2cas3cas4cas5cas6chandeadermsfilefuncidleint8kindsbrksse2sse3trueuint ...\n H_T= H_a= H_g= MB,  W_a= and  cnt= h_a= h_g= h_t= max= ptr  siz= tab= top="...
+(gdb) print a.array[0]
+$16 = {_type = 0x49fb20, data = 0x4d9eb0}
+(gdb) print a.array[1] /*a中第二个节点内容，字符串对象*/
+$17 = {_type = 0x49fb20, data = 0xc00018a040}
+(gdb) x /2xg 0xc00018a040 /*字符串对象的内容*/
+0xc00018a040:	0x000000c00018c000	0x0000000000000005
+(gdb) x /s 0xc00018c000
+0xc00018c000:	"efghi"

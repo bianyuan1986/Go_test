@@ -40,6 +40,16 @@ func MapAnalysis() {
 
 }
 
+func ByteToStringAnalysis() {
+	var data []byte
+	data = make([]byte, 5, 7)
+	for i := 0; i < 5; i++ {
+		data[i] = byte(101 + i)
+	}
+	str := string(data[:])
+	fmt.Println("Str:", str)
+}
+
 func ExternalInterface(v interface{}) {
 	fmt.Println("Get struct!")
 	d := v.(TestData)
@@ -54,8 +64,9 @@ func ExternalInterfacePointer(v *interface{}) {
 }
 
 func main() {
-	fmt.Println("Go struct analysis!")
+	/*fmt.Println("Go struct analysis!")
 	a := TestData{name: "2020 Go!"}
 	ExternalInterface(a)
-	ExternalInterface(&a)
+	ExternalInterface(&a)*/
+	ByteToStringAnalysis()
 }
