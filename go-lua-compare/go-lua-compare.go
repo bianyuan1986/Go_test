@@ -55,9 +55,7 @@ const (
 	SIZE       = 1024 * 1024
 )
 
-//var luaStatement string = `print("Hello World!")`
-
-var luaStatement string = "s = 'select where'; if string.sub(s,1,6)=='select' and string.find(s,'where') then ok = 1 end"
+var luaStatement string = "s = 'select trunc( categoryid/pkg_roles.Fgetmancat(2)) as CATEGORYID, sum(nvl(a.salevalue,0)) as salevalue, sum(nvl(a.netsalevalue,0)) as netsalevalue, sum(nvl(a.salevalueratio,0)) as salevalueratio, sum(nvl(a.costvalue,0)) as costvalue, sum(nvl(a.netcostvalue,0)) as netcostvalue, sum(nvl(a.grossprofit,0)) as grossprofit, sum(nvl(a.grossprofit,0))/f0tonull( sum(nvl(a.salevalue,0)))*100 as grossmargin, sum(nvl(a.grossprofitratio,0)) as grossprofitratio,salechannel from TMP_RPT_M85151006 a where 1=1 group by salechannel, trunc( categoryid/pkg_roles.Fgetmancat(2)) order by trunc( categoryid/pkg_roles.Fgetmancat(2))'; if string.sub(s,1,6)=='select' and string.find(s,'where') then ok = 1 end"
 var L1 *lua.LState
 
 func sum(boundary int) int {
@@ -259,16 +257,15 @@ func main() {
 
 	fmt.Println("Begin Test!")
 
-	cgo_test()
+	/*cgo_test()
 	golang_test()
 	cgo_string_test()
 	golang_string_test()
-	golang_lua_test()
+	golang_lua_test()*/
 	cgo_lua_test()
-	golang_lua_precompile_test()
+	/*golang_lua_precompile_test()*/
 	golang_lua_bytecode_run_test()
 	memory_test()
-	register_func()
 
 	fmt.Println("End Test!")
 }
