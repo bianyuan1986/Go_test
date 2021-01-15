@@ -14,11 +14,13 @@ type rule struct {
 	Id     int
 	Name   string
 	SRules subRule
+	MRules []subRule
 }
 
 func testReflect() {
 	r := rule{Id: 2021, Name: "xss"}
-	//r.sRules = append(r.sRules, subRule{sid: 3, sname: "ddd"})
+	r.MRules = append(r.MRules, subRule{Sid: 3, Sname: "eee"})
+	r.MRules = append(r.MRules, subRule{Sid: 4, Sname: "eee"})
 	r.SRules.Sid = 3
 	r.SRules.Sname = "ddd"
 	parseStructType(r, 0)
@@ -75,6 +77,14 @@ func parseStructType(data interface{}, level int) interface{} {
 		case reflect.Struct:
 			fmt.Println("Value:", subValue)
 			parseStructType(reflect.New(subType).Interface(), level+1)
+		case reflect.Slice:
+			elementType := subValue.Index(0).Type()
+			fmt.Println("Type:", elementType)
+			if elementType.Kind() == reflect.Struct {
+				element := reflect.New(elementType).Interface()
+				parseStructType(element, level+1)
+			}
+		case reflect.Map:
 		default:
 			fmt.Println("Unsupported value!")
 		}
@@ -102,7 +112,7 @@ func main() {
 
 /*
 Type of data: main.rule
-Struct [rule] contain [3] fields
+Struct [rule] contain [4] fields
     ------------------------------
     [00]: [Id]
     SubType:            int |Value: 2021
@@ -119,7 +129,17 @@ Struct [rule] contain [3] fields
         SubType:         string |Value:
         ------------------------------
         New Value: {2022 sql}
+    [03]: [MRules]
+    SubType: []main.subRule |Type: main.subRule
+    Type of data:main.subRule
+    Struct [subRule] contain [2] fields
+        ------------------------------
+        [00]: [Sid]
+        SubType:            int |Value: 0
+        [01]: [Sname]
+        SubType:         string |Value:
+        ------------------------------
+        New Value: {2022 sql}
     ------------------------------
-    New Value: {2022 sql {0 }}
-
+    New Value: {2022 sql {0 } []}
 */
