@@ -1,0 +1,471 @@
+Breakpoint 1, gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord (streamIdx=3, traceId=..., threadId=2,
+    ~r3=<optimized out>) at /home/admin/work/src/gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress/decompress.go:142
+142	/home/admin/work/src/gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress/decompress.go: No such file or directory.
+(gdb) disassemble
+Dump of assembler code for function gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord:
+=> 0x0000000000c92500 <+0>:	mov    %fs:0xffffffffffffffe8,%rcx
+   0x0000000000c92509 <+9>:	lea    -0x40(%rsp),%rax
+   0x0000000000c9250e <+14>:	cmp    0x10(%rcx),%rax
+   0x0000000000c92512 <+18>:	jbe    0xc927aa <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord+682>
+   0x0000000000c92518 <+24>:	sub    $0xc0,%rsp
+   0x0000000000c9251f <+31>:	mov    %rbp,0xb8(%rsp)
+   0x0000000000c92527 <+39>:	lea    0xb8(%rsp),%rbp
+
+#timeStampRecord slice的元素个数
+   0x0000000000c9252f <+47>:	mov    0x181e1c2(%rip),%rcx        # 0x24b06f8 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.timeStampRecord+8>
+
+#timeStampRecord slice的首地址
+   0x0000000000c92536 <+54>:	mov    0x181e1b3(%rip),%rdx        # 0x24b06f0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.timeStampRecord>
+
+#(gdb) x /3xg 0x24b06f0  分别是data/len/cap
+#0x24b06f0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.timeStampRecord>:	0x000000c0004441c0	0x0000000000000003
+#0x24b0700 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.timeStampRecord+16>:	0x0000000000000003
+#(gdb) x /3xg 0xc0004441c0  data指向的地址处保存了时间戳，三个节点
+#0xc0004441c0:	0x0000000060b8c84c	0x0000000060b8c84c
+#0xc0004441d0:	0x0000000060b8c84c
+
+   0x0000000000c9253d <+61>:	mov    0xe0(%rsp),%rax
+   0x0000000000c92545 <+69>:	cmp    %rcx,%rax
+   0x0000000000c92548 <+72>:	jae    0xc927a4 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord+676>
+   0x0000000000c9254e <+78>:	mov    (%rdx,%rax,8),%rcx
+   0x0000000000c92552 <+82>:	mov    %rcx,0x50(%rsp)
+   0x0000000000c92557 <+87>:	lea    0x88ed62(%rip),%rdx        # 0x15212c0
+   0x0000000000c9255e <+94>:	mov    %rdx,(%rsp)
+   0x0000000000c92562 <+98>:	callq  0x481400 <runtime.newobject>
+   0x0000000000c92567 <+103>:	mov    0x8(%rsp),%rax
+   0x0000000000c9256c <+108>:	mov    %rax,0x60(%rsp)
+   0x0000000000c92571 <+113>:	mov    0xc8(%rsp),%rcx
+   0x0000000000c92579 <+121>:	mov    %rcx,(%rax)
+   0x0000000000c9257c <+124>:	mov    0x50(%rsp),%rcx
+   0x0000000000c92581 <+129>:	mov    %rcx,0x8(%rax)
+   0x0000000000c92585 <+133>:	lea    0x8f9fb4(%rip),%rcx        # 0x158c540
+   0x0000000000c9258c <+140>:	mov    %rcx,(%rsp)
+   0x0000000000c92590 <+144>:	callq  0x481400 <runtime.newobject>
+   0x0000000000c92595 <+149>:	mov    0x8(%rsp),%rax
+   0x0000000000c9259a <+154>:	mov    0x181e117(%rip),%rcx        # 0x24b06b8 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray+8>
+   0x0000000000c925a1 <+161>:	mov    0x181e108(%rip),%rdx        # 0x24b06b0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray>
+   0x0000000000c925a8 <+168>:	mov    0xe0(%rsp),%rbx
+   0x0000000000c925b0 <+176>:	cmp    %rcx,%rbx
+   0x0000000000c925b3 <+179>:	jae    0xc9279c <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord+668>
+   0x0000000000c925b9 <+185>:	mov    %rax,0x68(%rsp)
+   0x0000000000c925be <+190>:	lea    (%rbx,%rbx,4),%rcx
+   0x0000000000c925c2 <+194>:	lea    (%rdx,%rcx,8),%rsi
+   0x0000000000c925c6 <+198>:	cmpl   $0x0,0x195bae3(%rip)        # 0x25ee0b0 <runtime.writeBarrier>
+   0x0000000000c925cd <+205>:	jne    0xc9277d <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord+637>
+   0x0000000000c925d3 <+211>:	mov    (%rdx,%rcx,8),%rsi
+   0x0000000000c925d7 <+215>:	mov    %rsi,(%rax)
+   0x0000000000c925da <+218>:	lea    (%rdx,%rcx,8),%rsi
+   0x0000000000c925de <+222>:	lea    0x8(%rsi),%rsi
+   0x0000000000c925e2 <+226>:	movups (%rsi),%xmm0
+   0x0000000000c925e5 <+229>:	movups %xmm0,0x8(%rax)
+   0x0000000000c925e9 <+233>:	lea    (%rdx,%rcx,8),%rcx
+   0x0000000000c925ed <+237>:	lea    0x18(%rcx),%rcx
+   0x0000000000c925f1 <+241>:	movups (%rcx),%xmm0
+   0x0000000000c925f4 <+244>:	movups %xmm0,0x18(%rax)
+   0x0000000000c925f8 <+248>:	mov    0xd0(%rsp),%rax
+   0x0000000000c92600 <+256>:	mov    %rax,(%rsp)
+   0x0000000000c92604 <+260>:	mov    0xd8(%rsp),%rcx
+   0x0000000000c9260c <+268>:	mov    %rcx,0x8(%rsp)
+   0x0000000000c92611 <+273>:	callq  0x47e7b0 <runtime.convTstring>
+   0x0000000000c92616 <+278>:	mov    0x68(%rsp),%rax
+   0x0000000000c9261b <+283>:	mov    %rax,(%rsp)
+   0x0000000000c9261f <+287>:	lea    0x7ea9ba(%rip),%rcx        # 0x147cfe0
+   0x0000000000c92626 <+294>:	mov    %rcx,0x8(%rsp)
+   0x0000000000c9262b <+299>:	lea    0x84f76e(%rip),%rdx        # 0x14e1da0
+   0x0000000000c92632 <+306>:	mov    %rdx,0x18(%rsp)
+   0x0000000000c92637 <+311>:	mov    0x60(%rsp),%rdx
+   0x0000000000c9263c <+316>:	mov    %rdx,0x20(%rsp)
+   0x0000000000c92641 <+321>:	callq  0x4f50b0 <sync.(*Map).Store>
+   0x0000000000c92646 <+326>:	mov    0xe0(%rsp),%rax
+   0x0000000000c9264e <+334>:	mov    %rax,(%rsp)
+   0x0000000000c92652 <+338>:	callq  0x47e730 <runtime.convT64>
+   0x0000000000c92657 <+343>:	mov    0x8(%rsp),%rax
+   0x0000000000c9265c <+348>:	mov    %rax,0x58(%rsp)
+   0x0000000000c92661 <+353>:	mov    0xd0(%rsp),%rcx
+   0x0000000000c92669 <+361>:	mov    %rcx,(%rsp)
+   0x0000000000c9266d <+365>:	mov    0xd8(%rsp),%rcx
+   0x0000000000c92675 <+373>:	mov    %rcx,0x8(%rsp)
+   0x0000000000c9267a <+378>:	callq  0x47e7b0 <runtime.convTstring>
+   0x0000000000c9267f <+383>:	mov    0x10(%rsp),%rax
+   0x0000000000c92684 <+388>:	xorps  %xmm0,%xmm0
+   0x0000000000c92687 <+391>:	movups %xmm0,0x70(%rsp)
+   0x0000000000c9268c <+396>:	movups %xmm0,0x80(%rsp)
+   0x0000000000c92694 <+404>:	lea    0x7e9ec5(%rip),%rcx        # 0x147c560
+   0x0000000000c9269b <+411>:	mov    %rcx,0x70(%rsp)
+   0x0000000000c926a0 <+416>:	mov    0x58(%rsp),%rcx
+   0x0000000000c926a5 <+421>:	mov    %rcx,0x78(%rsp)
+   0x0000000000c926aa <+426>:	lea    0x7ea92f(%rip),%rcx        # 0x147cfe0
+   0x0000000000c926b1 <+433>:	mov    %rcx,0x80(%rsp)
+   0x0000000000c926b9 <+441>:	mov    %rax,0x88(%rsp)
+   0x0000000000c926c1 <+449>:	mov    0x181bb68(%rip),%rax        # 0x24ae230 <os.Stdout>
+   0x0000000000c926c8 <+456>:	lea    0xb9c971(%rip),%rcx        # 0x182f040 <go.itab.*os.File,io.Writer>
+   0x0000000000c926cf <+463>:	mov    %rcx,(%rsp)
+   0x0000000000c926d3 <+467>:	mov    %rax,0x8(%rsp)
+   0x0000000000c926d8 <+472>:	lea    0x9f261e(%rip),%rax        # 0x1684cfd
+   0x0000000000c926df <+479>:	mov    %rax,0x10(%rsp)
+   0x0000000000c926e4 <+484>:	movq   $0x11,0x18(%rsp)
+   0x0000000000c926ed <+493>:	lea    0x70(%rsp),%rax
+   0x0000000000c926f2 <+498>:	mov    %rax,0x20(%rsp)
+   0x0000000000c926f7 <+503>:	movq   $0x2,0x28(%rsp)
+   0x0000000000c92700 <+512>:	movq   $0x2,0x30(%rsp)
+   0x0000000000c92709 <+521>:	callq  0x5583c0 <fmt.Fprintf>
+   0x0000000000c9270e <+526>:	mov    0x68(%rsp),%rax
+   0x0000000000c92713 <+531>:	mov    (%rax),%rcx
+   0x0000000000c92716 <+534>:	mov    %rcx,0x90(%rsp)
+   0x0000000000c9271e <+542>:	movups 0x8(%rax),%xmm0
+   0x0000000000c92722 <+546>:	movups %xmm0,0x98(%rsp)
+   0x0000000000c9272a <+554>:	movups 0x18(%rax),%xmm0
+   0x0000000000c9272e <+558>:	movups %xmm0,0xa8(%rsp)
+   0x0000000000c92736 <+566>:	mov    0x90(%rsp),%rax
+   0x0000000000c9273e <+574>:	mov    %rax,(%rsp)
+   0x0000000000c92742 <+578>:	movups 0x98(%rsp),%xmm0
+   0x0000000000c9274a <+586>:	movups %xmm0,0x8(%rsp)
+   0x0000000000c9274f <+591>:	movups 0xa8(%rsp),%xmm0
+   0x0000000000c92757 <+599>:	movups %xmm0,0x18(%rsp)
+   0x0000000000c9275c <+604>:	callq  0xc92050 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.DumpMap>
+   0x0000000000c92761 <+609>:	movq   $0x0,0xe8(%rsp)
+   0x0000000000c9276d <+621>:	mov    0xb8(%rsp),%rbp
+   0x0000000000c92775 <+629>:	add    $0xc0,%rsp
+   0x0000000000c9277c <+636>:	retq
+   0x0000000000c9277d <+637>:	lea    0x8f9dbc(%rip),%rcx        # 0x158c540
+   0x0000000000c92784 <+644>:	mov    %rcx,(%rsp)
+   0x0000000000c92788 <+648>:	mov    %rax,0x8(%rsp)
+   0x0000000000c9278d <+653>:	mov    %rsi,0x10(%rsp)
+   0x0000000000c92792 <+658>:	callq  0x488460 <runtime.typedmemmove>
+   0x0000000000c92797 <+663>:	jmpq   0xc925f8 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord+248>
+   0x0000000000c9279c <+668>:	mov    %rbx,%rax
+   0x0000000000c9279f <+671>:	callq  0x4dc8a0 <runtime.panicIndex>
+   0x0000000000c927a4 <+676>:	callq  0x4dc8a0 <runtime.panicIndex>
+   0x0000000000c927a9 <+681>:	nop
+   0x0000000000c927aa <+682>:	callq  0x4d9f70 <runtime.morestack_noctxt>
+   0x0000000000c927af <+687>:	jmpq   0xc92500 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.AddRecord>
+End of assembler dump.
+
+
+
+------------------------------------------------------------------------------------------------------
+
+#var gzipMapArray []*sync.Map
+
+
+Breakpoint 1, main.Add1 (traceId="aaa", id=2) at /home/baohu.rbh/test_case/main.go:41
+41	func Add1(traceId string, id int) {
+(gdb) next
+42		gMap := gzipMapArray[id]
+(gdb)
+43		gMap.Store(traceId, 2021)
+(gdb)
+44		DumpMap(*gMap)
+(gdb) info locals
+gMap = 0xc000104240
+(gdb) print gMap
+$1 = (sync.Map *) 0xc000104240
+(gdb) print gMap[0]
+$2 = {mu = {state = 0, sema = 0}, read = {v = {_type = 0x4af7a0, data = 0xc000102200}},
+  dirty = map[interface {}]*sync.entry = {[{_type = 0x4a1c40, data = 0xc0001021e0}] = 0xc000128018}, misses = 0}
+(gdb) ptype gMap
+type = struct sync.Map {
+    sync.Mutex mu;
+    sync/atomic.Value read;
+    map[interface {}]*sync.entry dirty;
+    int misses;
+} *
+(gdb) print gMap.read
+$3 = {v = {_type = 0x4af7a0, data = 0xc000102200}}
+(gdb) ptype gMap.read
+type = struct sync/atomic.Value {
+    interface {} v;
+}
+
+#Store写数据到dirty，查看dirty map数据
+
+(gdb) print gMap.dirty   
+$4 = map[interface {}]*sync.entry = {[{_type = 0x4a1c40, data = 0xc0001021e0}] = 0xc000128018}
+(gdb) print traceId
+$5 = "aaa"
+(gdb) ptype traceId
+type = struct string {
+    uint8 *str;
+    int len;
+}
+
+#查看traceId字符串数据, addr为0x4c1cfc
+(gdb) print traceId.str
+$6 = (uint8 *) 0x4c1cfc "aaaadxaesavxendfmagc gp intmapnilobjpc=ptrµsμs <== at  fp= is  lr: of  on  pc= sp: sp=) = ) m=+Inf, n -Inf3125: p=AhomChamDashGOGCLisuMiaoModiNewaThai\n\tm=] = ] n=avx2basebmi1bmi2boolcallcas1cas2cas3"...
+
+#查看dirty map中存储的keys中的第一个key的data 0xc0001021e0，可以看到数据和traceId的内容一致，
+#说明keys中保存的是字符串traceId的地址
+
+(gdb) x /2xg 0xc0001021e0
+0xc0001021e0:	0x00000000004c1cfc	0x0000000000000003
+(gdb) print gMap.dirty[0]
+$7 = {count = 1, flags = 0 '\000', B = 0 '\000', noverflow = 0, hash0 = 2931077616, buckets = 0xc0001068f0,
+  oldbuckets = 0x0, nevacuate = 0, extra = 0x0}
+(gdb) print gMap.dirty.buckets
+$8 = (struct bucket<interface {},*sync.entry> *) 0xc0001068f0
+
+#查看dirty map中keys中存储的key，每个key中保存了type类型，以及字符串对象的地址
+(gdb) print gMap.dirty.buckets[0]
+$9 = {tophash = "k\000\000\000\000\000\000", keys = {{_type = 0x4a1c40, data = 0xc0001021e0}, {_type = 0x0, data = 0x0}, {
+      _type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {
+      _type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}}, values = {0xc000128018, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},
+  overflow = 0x0}
+(gdb) ptype gMap.dirty.buckets
+type = struct bucket<interface {},*sync.entry> {
+    [8]uint8 tophash;
+    []key<interface {}> keys;
+    []val<*sync.entry> values;
+    struct bucket<interface {},*sync.entry> *overflow;
+} *
+(gdb) print gMap.dirty.buckets.keys
+$10 = {{_type = 0x4a1c40, data = 0xc0001021e0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0,
+    data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}}
+
+#查看buckets后的数据，第一个8字节为tophash, 然后是keys数组，每个节点是一个key
+(gdb) x /4xg 0xc0001068f0
+0xc0001068f0:	0x000000000000006b	0x00000000004a1c40
+0xc000106900:	0x000000c0001021e0	0x0000000000000000
+(gdb) watch gMap.dirty.buckets.keys
+Watchpoint 2: gMap.dirty.buckets.keys
+(gdb) watch *0xc000106900
+Hardware watchpoint 3: *0xc000106900
+(gdb) break main.Find1
+Breakpoint 4 at 0x493330: file /home/baohu.rbh/test_case/main.go, line 47.
+(gdb) c
+Continuing.
+Watchpoint 2 deleted because the program has left the block in
+which its expression is valid.
+runtime.sigtramp () at /usr/local/go/src/runtime/sys_linux_amd64.s:374
+374	TEXT runtime·sigtramp(SB),NOSPLIT,$72
+(gdb) bt
+#0  runtime.sigtramp () at /usr/local/go/src/runtime/sys_linux_amd64.s:374
+#1  0x000000000045db30 in ?? () at /usr/local/go/src/runtime/sys_linux_amd64.s:473
+#2  0x0000000000000001 in ?? ()
+#3  0x0000000000000000 in ?? ()
+(gdb) c
+Continuing.
+------------Dump Map----------------
+Key:aaa|value:2021
+------------Dump End----------------
+
+Breakpoint 4, main.Find1 (traceId="aaa", id=2) at /home/baohu.rbh/test_case/main.go:47
+47	func Find1(traceId string, id int) {
+(gdb) next
+48		gMap := gzipMapArray[id]
+(gdb)
+49		DumpMap(*gMap)
+(gdb) info locals
+gMap = 0xc000104240
+value = <optimized out>
+(gdb) print gMap[0]
+$11 = {mu = {state = 0, sema = 0}, read = {v = {_type = 0x4af7a0, Python Exception <class 'gdb.error'> Attempt to take contents of a non-pointer value.:
+data = 0xc000102200}},
+  dirty = map[interface {}]*sync.entry, misses = 0}
+(gdb) print gMap.dirty
+Python Exception <class 'gdb.error'> Attempt to take contents of a non-pointer value.:
+$12 = map[interface {}]*sync.entry
+(gdb) print gMap.dirty[0]
+$13 = {count = 1, flags = 3 '\003', B = 0 '\000', noverflow = 0, hash0 = 2931077616, buckets = 0xc0001068f0,
+  oldbuckets = 0x0, nevacuate = 0, extra = 0x0}
+(gdb) print gMap.dirty.buckets
+$14 = (struct bucket<interface {},*sync.entry> *) 0xc0001068f0
+(gdb) print gMap.dirty.buckets[0]
+$15 = {tophash = "k\000\000\000\000\000\000", keys = {{_type = 0x4a1c40, data = 0xc0001021e0}, {_type = 0x0, data = 0x0}, {
+      _type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}, {
+      _type = 0x0, data = 0x0}, {_type = 0x0, data = 0x0}}, values = {0xc000128018, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},
+  overflow = 0x0}
+(gdb) detach
+Detaching from program: /home/baohu.rbh/test_case/main, process 25649
+------------Dump Map----------------
+Key:aaa|value:2021
+------------Dump End----------------
+Find value:2021!
+(gdb) quit
+
+
+
+-------------------------------------------------------------------------------------------------
+
+#var gzipMapArray []sync.Map
+
+Breakpoint 1, main.Add1 (traceId="aaa", id=2) at /home/baohu.rbh/test_case/exception.go:22
+22	func Add1(traceId string, id int) {
+
+#此处是值拷贝，问题最终原因是因为调用gzipMapArray = make([]sync.Map, 3)后，每个sync.Map中的dirty表
+#还未初始化，所以通过Store添加元素是添加到gMap副本中，而没有添加到gzipMapArray[2]中
+
+(gdb) next
+23		gMap := gzipMapArray[id]
+(gdb)
+24		gMap.Store(traceId, 2021)
+(gdb) info locals
+&gMap = 0xc00005c1e0
+(gdb) x /3xg 0x5675e0
+0x5675e0 <main.gzipMapArray>:	0x000000c000074000	0x0000000000000003
+0x5675f0 <main.gzipMapArray+16>:	0x0000000000000003
+(gdb) break *0x00000000004933a9
+Breakpoint 3 at 0x4933a9: file /home/baohu.rbh/test_case/exception.go, line 24.
+(gdb) c
+Continuing.
+
+Breakpoint 3, 0x00000000004933a9 in main.Add1 (traceId="aaa", id=2) at /home/baohu.rbh/test_case/exception.go:24
+24		gMap.Store(traceId, 2021)
+(gdb) disassemble
+Dump of assembler code for function main.Add1:
+   0x00000000004932b0 <+0>:	mov    %fs:0xfffffffffffffff8,%rcx
+   0x00000000004932b9 <+9>:	cmp    0x10(%rcx),%rsp
+   0x00000000004932bd <+13>:	jbe    0x493424 <main.Add1+372>
+   0x00000000004932c3 <+19>:	sub    $0x70,%rsp
+   0x00000000004932c7 <+23>:	mov    %rbp,0x68(%rsp)
+   0x00000000004932cc <+28>:	lea    0x68(%rsp),%rbp
+   0x00000000004932d1 <+33>:	lea    0x21768(%rip),%rax        # 0x4b4a40
+   0x00000000004932d8 <+40>:	mov    %rax,(%rsp)
+   0x00000000004932dc <+44>:	callq  0x40bd10 <runtime.newobject>
+   0x00000000004932e1 <+49>:	mov    0x8(%rsp),%rax
+   0x00000000004932e6 <+54>:	mov    %rax,0x38(%rsp)
+   0x00000000004932eb <+59>:	mov    0x88(%rsp),%rcx
+   0x00000000004932f3 <+67>:	mov    0xd42ee(%rip),%rdx        # 0x5675e8 <main.gzipMapArray+8>
+   0x00000000004932fa <+74>:	mov    0xd42df(%rip),%rbx        # 0x5675e0 <main.gzipMapArray>
+   0x0000000000493301 <+81>:	cmp    %rdx,%rcx
+   0x0000000000493304 <+84>:	jb     0x49330b <main.Add1+91>
+   0x0000000000493306 <+86>:	jmpq   0x493418 <main.Add1+360>
+   0x000000000049330b <+91>:	lea    (%rcx,%rcx,4),%rcx
+   0x000000000049330f <+95>:	lea    (%rbx,%rcx,8),%rdx
+   0x0000000000493313 <+99>:	cmpl   $0x0,0xfda66(%rip)        # 0x590d80 <runtime.writeBarrier>
+   0x000000000049331a <+106>:	je     0x493321 <main.Add1+113>
+   0x000000000049331c <+108>:	jmpq   0x4933f9 <main.Add1+329>
+   0x0000000000493321 <+113>:	mov    (%rbx,%rcx,8),%rdx
+   0x0000000000493325 <+117>:	mov    %rdx,(%rax)
+   0x0000000000493328 <+120>:	lea    (%rbx,%rcx,8),%rdx
+   0x000000000049332c <+124>:	lea    0x8(%rdx),%rdx
+   0x0000000000493330 <+128>:	movups (%rdx),%xmm0
+   0x0000000000493333 <+131>:	movups %xmm0,0x8(%rax)
+   0x0000000000493337 <+135>:	lea    (%rbx,%rcx,8),%rcx
+   0x000000000049333b <+139>:	lea    0x18(%rcx),%rcx
+   0x000000000049333f <+143>:	movups (%rcx),%xmm0
+   0x0000000000493342 <+146>:	movups %xmm0,0x18(%rax)
+   0x0000000000493346 <+150>:	jmp    0x493348 <main.Add1+152>
+   0x0000000000493348 <+152>:	mov    0x78(%rsp),%rax
+   0x000000000049334d <+157>:	mov    0x80(%rsp),%rcx
+   0x0000000000493355 <+165>:	mov    %rax,(%rsp)
+   0x0000000000493359 <+169>:	mov    %rcx,0x8(%rsp)
+   0x000000000049335e <+174>:	callq  0x4094c0 <runtime.convTstring>
+   0x0000000000493363 <+179>:	mov    0x10(%rsp),%rax
+   0x0000000000493368 <+184>:	mov    %rax,0x30(%rsp)
+   0x000000000049336d <+189>:	mov    0x38(%rsp),%rax
+   0x0000000000493372 <+194>:	mov    %rax,0x28(%rsp)
+   0x0000000000493377 <+199>:	mov    %rax,(%rsp)
+   0x000000000049337b <+203>:	mov    0x30(%rsp),%rax
+   0x0000000000493380 <+208>:	lea    0xe8b9(%rip),%rcx        # 0x4a1c40
+   0x0000000000493387 <+215>:	mov    %rcx,0x8(%rsp)
+   0x000000000049338c <+220>:	mov    %rax,0x10(%rsp)
+   0x0000000000493391 <+225>:	lea    0xe168(%rip),%rax        # 0x4a1500
+   0x0000000000493398 <+232>:	mov    %rax,0x18(%rsp)
+   0x000000000049339d <+237>:	lea    0x48c8c(%rip),%rax        # 0x4dc030
+   0x00000000004933a4 <+244>:	mov    %rax,0x20(%rsp)
+=> 0x00000000004933a9 <+249>:	callq  0x460cf0 <sync.(*Map).Store>
+   0x00000000004933ae <+254>:	mov    0x38(%rsp),%rax
+   0x00000000004933b3 <+259>:	mov    (%rax),%rcx
+   0x00000000004933b6 <+262>:	mov    %rcx,0x40(%rsp)
+   0x00000000004933bb <+267>:	movups 0x8(%rax),%xmm0
+   0x00000000004933bf <+271>:	movups %xmm0,0x48(%rsp)
+   0x00000000004933c4 <+276>:	movups 0x18(%rax),%xmm0
+   0x00000000004933c8 <+280>:	movups %xmm0,0x58(%rsp)
+   0x00000000004933cd <+285>:	mov    0x40(%rsp),%rax
+   0x00000000004933d2 <+290>:	mov    %rax,(%rsp)
+   0x00000000004933d6 <+294>:	movups 0x48(%rsp),%xmm0
+   0x00000000004933db <+299>:	movups %xmm0,0x8(%rsp)
+   0x00000000004933e0 <+304>:	movups 0x58(%rsp),%xmm0
+   0x00000000004933e5 <+309>:	movups %xmm0,0x18(%rsp)
+   0x00000000004933ea <+314>:	callq  0x493740 <main.DumpMap>
+   0x00000000004933ef <+319>:	mov    0x68(%rsp),%rbp
+   0x00000000004933f4 <+324>:	add    $0x70,%rsp
+   0x00000000004933f8 <+328>:	retq
+   0x00000000004933f9 <+329>:	lea    0x21640(%rip),%rcx        # 0x4b4a40
+   0x0000000000493400 <+336>:	mov    %rcx,(%rsp)
+   0x0000000000493404 <+340>:	mov    %rax,0x8(%rsp)
+   0x0000000000493409 <+345>:	mov    %rdx,0x10(%rsp)
+   0x000000000049340e <+350>:	callq  0x410b30 <runtime.typedmemmove>
+   0x0000000000493413 <+355>:	jmpq   0x493348 <main.Add1+152>
+   0x0000000000493418 <+360>:	mov    %rcx,%rax
+   0x000000000049341b <+363>:	mov    %rdx,%rcx
+   0x000000000049341e <+366>:	callq  0x45c4d0 <runtime.panicIndex>
+   0x0000000000493423 <+371>:	nop
+   0x0000000000493424 <+372>:	callq  0x459d20 <runtime.morestack_noctxt>
+   0x0000000000493429 <+377>:	jmpq   0x4932b0 <main.Add1>
+End of assembler dump.
+(gdb) info locals
+&gMap = 0xc00005c1e0
+(gdb) x /12xg 0xc00005c1e0
+0xc00005c1e0:	0x0000000000000000	0x0000000000000000
+0xc00005c1f0:	0x0000000000000000	0x0000000000000000
+0xc00005c200:	0x0000000000000000	0x0000000000000000
+0xc00005c210:	0x0000000000000000	0x0000000000000000
+0xc00005c220:	0x0000000000000000	0x0000000000000000
+0xc00005c230:	0x0000000000000000	0x0000000000000000
+(gdb) print $rsp
+$1 = (void *) 0xc000066ed8
+(gdb) x /3xg $rsp
+0xc000066ed8:	0x000000c00005c1e0	0x00000000004a1c40
+0xc000066ee8:	0x000000c000010200
+(gdb) step
+sync.(*Map).Store (m=0xc00005c1e0, key=..., value=...) at /usr/local/go/src/sync/map.go:136
+136	func (m *Map) Store(key, value interface{}) {
+(gdb) next
+137		read, _ := m.read.Load().(readOnly)
+(gdb) print m
+$2 = (sync.Map *) 0xc00005c1e0
+
+#此时的sync.Map副本中的dirty表还未初始化
+
+(gdb) print m[0]
+$3 = {mu = {state = 0, sema = 0}, read = {v = {_type = 0x0, data = 0x0}},
+  dirty = map[interface {}]*sync.entry<error reading variable: Cannot access memory at address 0x9>, misses = 0}
+(gdb) next
+138		if e, ok := read.m[key]; ok && e.tryStore(&value) {
+(gdb)
+142		m.mu.Lock()
+(gdb)
+143		read, _ = m.read.Load().(readOnly)
+(gdb)
+144		if e, ok := read.m[key]; ok {
+(gdb)
+151		} else if e, ok := m.dirty[key]; ok {
+(gdb)
+154			if !read.amended {
+(gdb)
+  1 package main
+157				m.dirtyLocked()
+(gdb)
+158				m.read.Store(readOnly{m: read.m, amended: true})
+(gdb)
+160			m.dirty[key] = newEntry(value)
+(gdb)
+162		m.mu.Unlock()
+(gdb) print m
+$4 = (sync.Map *) 0xc00005c1e0
+
+#添加节点后，此时整个Map表进行了初始化
+
+(gdb) print m[0]
+$5 = {mu = {state = 1, sema = 0}, read = {v = {_type = 0x4af7a0, data = 0xc000010220}},
+  dirty = map[interface {}]*sync.entry = {[{_type = 0x4a1c40, data = 0xc000010200}] = 0xc00000e028}, misses = 0}
+(gdb) x /8xg m
+0xc00005c1e0:	0x0000000000000001	0x00000000004af7a0
+0xc00005c1f0:	0x000000c000010220	0x000000c00005c210
+0xc00005c200:	0x0000000000000000	0x0000000000000000
+0xc00005c210:	0x0000000000000001	0x0001b69e00000000
+
+#继续查看gzipMapArray中的节点
+
+(gdb) x /3xg 0x5675e0
+0x5675e0 <main.gzipMapArray>:	0x000000c000074000	0x0000000000000003
+0x5675f0 <main.gzipMapArray+16>:	0x0000000000000003
+
+#可以看到还是未初始化状态
+
+(gdb) x /8xg 0x000000c000074000
+0xc000074000:	0x0000000000000000	0x0000000000000000
+0xc000074010:	0x0000000000000000	0x0000000000000000
+0xc000074020:	0x0000000000000000	0x0000000000000000
+0xc000074030:	0x0000000000000000	0x0000000000000000
