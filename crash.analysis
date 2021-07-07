@@ -10009,3 +10009,766 @@ rflags 0x286
 cs     0x33
 fs     0x0
 gs     0x0
+
+
+
+
+(gdb) bt
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#1  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#2  0x0000000000450e2e in runtime.sigfwdgo (sig=6, info=0xc01f4bbbf0, ctx=0xc01f4bbac0, ~r3=<optimized out>)
+    at /root/go/src/runtime/signal_unix.go:943
+#3  0x000000000044f784 in runtime.sigtrampgo (sig=6, info=0xc01f4bbbf0, ctx=0xc01f4bbac0)
+    at /root/go/src/runtime/signal_unix.go:412
+#4  0x000000000046e833 in runtime.sigtramp () at /root/go/src/runtime/sys_linux_amd64.s:389
+#5  <signal handler called>
+#6  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#7  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#8  0x0000000000450a0a in runtime.crash () at /root/go/src/runtime/signal_unix.go:821
+#9  0x0000000000469091 in runtime.fatalthrow.func1 () at /root/go/src/runtime/panic.go:1175
+#10 0x0000000000439927 in runtime.fatalthrow () at /root/go/src/runtime/panic.go:1168
+#11 0x0000000000439762 in runtime.throw (s=...) at /root/go/src/runtime/panic.go:1116
+#12 0x000000000045082a in runtime.sigpanic () at /root/go/src/runtime/signal_unix.go:679
+#13 0x000000000139a723 in _int_free ()
+#14 0x0000000000efbdcb in inflateEnd ()
+#15 0x0000000000ef6ac2 in TraceNodeClean (node=0x2b5b3c000de0) at context.c:44
+#16 0x0000000000ef74e1 in DelElem (htbl=0x2b5a186143a0, key=key@entry=0x2b5b801ffca8, currentTime=1625571182) at hash_table.c:127
+#17 0x0000000000ef75f5 in hash_table_del (htbl=<optimized out>, key=key@entry=0x2b5b801ffca8, currentTime=<optimized out>)
+    at hash_table.c:178
+#18 0x0000000000ef6f66 in CleanGzipContext (streamId=2152, threadId=<optimized out>, currentTime=<optimized out>)
+    at context.c:294
+#19 0x0000000000ef697e in _cgo_12cab474a5f0_Cfunc_CleanGzipContext (v=0xc054c29840) at cgo-gcc-prolog:56
+#20 0x000000000046c060 in runtime.asmcgocall () at /root/go/src/runtime/asm_amd64.s:655
+#21 0x0000000000000037 in ?? ()
+#22 0x0000000000000036 in ?? ()
+#23 0x00002b5b801ffd00 in ?? ()
+#24 0x00007fff4a5ffa37 in clock_gettime ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+(gdb) select-frame 19
+(gdb) x /4xg v
+0xc054c29840:	0x0000000000000868	0x000000000000001e
+0xc054c29850:	0x0000000060e43f6e	0x0000000000000000
+(gdb) print 0x1e
+$1 = 30
+(gdb) print 0x868
+$2 = 2152
+(gdb) select-frame 18
+(gdb) info locals
+hTable = <optimized out>
+(gdb) print globalTableArray.tables[30]
+$3 = (struct HashTable *) 0x0
+(gdb) print globalTableArray
+$4 = {head = 0x2b5a185ca010, tables = {0x0 <repeats 128 times>}, cnt = 200, max = 200}
+(gdb) ptype globalTableArray
+type = struct HashTableArray {
+    struct HashTable **head;
+    struct HashTable *tables[128];
+    int cnt;
+    int max;
+}
+(gdb) print globalTableArray->head[30]
+$5 = (struct HashTable *) 0x2b5a186143a0
+(gdb) print $5[0]
+$6 = {bucket = 0x2b5a186143d0, bucketSize = 500, nodeMax = 500, nodeCnt = 1, timeout = 30, statis = 0x2b5a18616320,
+  ops = 0x22e6460 <traceNodeOps>}
+(gdb) x /s $6
+Value can't be converted to integer.
+(gdb) x /s 0x2b5a186143a0
+0x2b5a186143a0:	"\320Ca\030Z+"
+(gdb) print $6.bucket[0]
+$7 = {next = 0x0, timestamp = 0, data = 0x2b5a186143e0 ""}
+(gdb) select-frame 17
+(gdb) info locals
+No locals.
+(gdb) print key
+$8 = (void *) 0x2b5b801ffca8
+(gdb) print *(int*)key
+$9 = 2152
+(gdb) x /1xg key
+0x2b5b801ffca8:	0x0000000000000868
+(gdb) select-frame 15
+(gdb) bt
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#1  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#2  0x0000000000450e2e in runtime.sigfwdgo (sig=6, info=0xc01f4bbbf0, ctx=0xc01f4bbac0, ~r3=<optimized out>)
+    at /root/go/src/runtime/signal_unix.go:943
+#3  0x000000000044f784 in runtime.sigtrampgo (sig=6, info=0xc01f4bbbf0, ctx=0xc01f4bbac0)
+    at /root/go/src/runtime/signal_unix.go:412
+#4  0x000000000046e833 in runtime.sigtramp () at /root/go/src/runtime/sys_linux_amd64.s:389
+#5  <signal handler called>
+#6  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#7  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#8  0x0000000000450a0a in runtime.crash () at /root/go/src/runtime/signal_unix.go:821
+#9  0x0000000000469091 in runtime.fatalthrow.func1 () at /root/go/src/runtime/panic.go:1175
+#10 0x0000000000439927 in runtime.fatalthrow () at /root/go/src/runtime/panic.go:1168
+#11 0x0000000000439762 in runtime.throw (s=...) at /root/go/src/runtime/panic.go:1116
+#12 0x000000000045082a in runtime.sigpanic () at /root/go/src/runtime/signal_unix.go:679
+#13 0x000000000139a723 in _int_free ()
+#14 0x0000000000efbdcb in inflateEnd ()
+#15 0x0000000000ef6ac2 in TraceNodeClean (node=0x2b5b3c000de0) at context.c:44
+#16 0x0000000000ef74e1 in DelElem (htbl=0x2b5a186143a0, key=key@entry=0x2b5b801ffca8, currentTime=1625571182) at hash_table.c:127
+#17 0x0000000000ef75f5 in hash_table_del (htbl=<optimized out>, key=key@entry=0x2b5b801ffca8, currentTime=<optimized out>)
+    at hash_table.c:178
+#18 0x0000000000ef6f66 in CleanGzipContext (streamId=2152, threadId=<optimized out>, currentTime=<optimized out>)
+    at context.c:294
+#19 0x0000000000ef697e in _cgo_12cab474a5f0_Cfunc_CleanGzipContext (v=0xc054c29840) at cgo-gcc-prolog:56
+#20 0x000000000046c060 in runtime.asmcgocall () at /root/go/src/runtime/asm_amd64.s:655
+#21 0x0000000000000037 in ?? ()
+#22 0x0000000000000036 in ?? ()
+#23 0x00002b5b801ffd00 in ?? ()
+#24 0x00007fff4a5ffa37 in clock_gettime ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+(gdb) print node
+$10 = (void *) 0x2b5b3c000de0
+(gdb) print (TraceNodeT*)node
+$11 = (TraceNodeT *) 0x2b5b3c000de0
+(gdb) print $11[0]
+$12 = {link = {next = 0x0, timestamp = 1625571183, data = 0x2b5b3c000df0 "h\b"}, ctx = {streamId = 2152, stream = {
+      next_in = 0xc0249acb9d "\003", avail_in = 0, total_in = 518, next_out = 0x2b5afad743f8 "", avail_out = 2096152,
+      total_out = 1000, msg = 0x0, state = 0x0, zalloc = 0xefd330 <zcalloc>, zfree = 0xefd340 <zcfree>, opaque = 0x0,
+      data_type = 64, adler = 2764170803, reserved = 1155346202638}}}
+(gdb) ptype $12
+type = struct TraceNode {
+    listElem link;
+    GzipContextT ctx;
+}
+(gdb) ptype $12.ctx
+type = struct GzipContext {
+    uint64_t streamId;
+    z_stream stream;
+}
+(gdb) ptype $12.ctx.stream
+type = struct z_stream_s {
+    Bytef *next_in;
+    uInt avail_in;
+    uLong total_in;
+    Bytef *next_out;
+    uInt avail_out;
+    uLong total_out;
+    char *msg;
+    struct internal_state *state;
+    alloc_func zalloc;
+    free_func zfree;
+    voidpf opaque;
+    int data_type;
+    uLong adler;
+    uLong reserved;
+}
+
+/*
+1277 int ZEXPORT inflateEnd(strm)
+1278 z_streamp strm;
+1279 {
+1280     struct inflate_state FAR *state;
+1281     if (inflateStateCheck(strm))
+1282         return Z_STREAM_ERROR;
+1283     state = (struct inflate_state FAR *)strm->state;
+1284     if (state->window != Z_NULL) ZFREE(strm, state->window);
+1285     ZFREE(strm, strm->state);
+1286     strm->state = Z_NULL;
+1287     Tracev((stderr, "inflate: end\n"));
+1288     return Z_OK;
+1289 }
+*/
+
+
+
+
+Program terminated with signal SIGABRT, Aborted.
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+165	/root/go/src/runtime/sys_linux_amd64.s: No such file or directory.
+[Current thread is 1 (LWP 14465)]
+warning: Missing auto-load script at offset 0 in section .debug_gdb_scripts
+of file /home/admin/warden/bin/warden.
+Use `info auto-load python-scripts [REGEXP]' to list them.
+(gdb) bt
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#1  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#2  0x0000000000450e2e in runtime.sigfwdgo (sig=6, info=0xc08a6dfbf0, ctx=0xc08a6dfac0, ~r3=<optimized out>)
+    at /root/go/src/runtime/signal_unix.go:943
+#3  0x000000000044f784 in runtime.sigtrampgo (sig=6, info=0xc08a6dfbf0, ctx=0xc08a6dfac0)
+    at /root/go/src/runtime/signal_unix.go:412
+#4  0x000000000046e833 in runtime.sigtramp () at /root/go/src/runtime/sys_linux_amd64.s:389
+#5  <signal handler called>
+#6  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#7  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#8  0x0000000000450a0a in runtime.crash () at /root/go/src/runtime/signal_unix.go:821
+#9  0x0000000000469091 in runtime.fatalthrow.func1 () at /root/go/src/runtime/panic.go:1175
+#10 0x0000000000439927 in runtime.fatalthrow () at /root/go/src/runtime/panic.go:1168
+#11 0x0000000000439762 in runtime.throw (s=...) at /root/go/src/runtime/panic.go:1116
+#12 0x000000000045082a in runtime.sigpanic () at /root/go/src/runtime/signal_unix.go:679
+#13 0x000000000139a723 in _int_free ()
+#14 0x0000000000efbdcb in inflateEnd ()
+#15 0x0000000000ef6ac2 in TraceNodeClean (node=0x2b18fc000d80) at context.c:44
+#16 0x0000000000ef74e1 in DelElem (htbl=0x2b1798f52e00, key=key@entry=0x2b18dd196ca8, currentTime=1625571846) at hash_table.c:127
+#17 0x0000000000ef75f5 in hash_table_del (htbl=<optimized out>, key=key@entry=0x2b18dd196ca8, currentTime=<optimized out>)
+    at hash_table.c:178
+#18 0x0000000000ef6f66 in CleanGzipContext (streamId=4634, threadId=<optimized out>, currentTime=<optimized out>)
+    at context.c:294
+#19 0x0000000000ef697e in _cgo_12cab474a5f0_Cfunc_CleanGzipContext (v=0xc039623840) at cgo-gcc-prolog:56
+#20 0x000000000046c060 in runtime.asmcgocall () at /root/go/src/runtime/asm_amd64.s:655
+#21 0x00000000000001e9 in ?? ()
+#22 0x00000000000001e8 in ?? ()
+#23 0x00002b18dd196d00 in ?? ()
+#24 0x00007fff39146a37 in clock_gettime ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+(gdb) select-frame 15
+(gdb) print (TraceNodeT*)node
+$1 = (TraceNodeT *) 0x2b18fc000d80
+(gdb) print $1[0]
+$2 = {link = {next = 0x2b18e0000b40, timestamp = 1625571846, data = 0x2b18fc000d90 "\032\022"}, ctx = {streamId = 4634,
+    stream = {next_in = 0xc03f18301d "\003", avail_in = 0, total_in = 518, next_out = 0x2b18636983f8 "", avail_out = 2096152,
+      total_out = 1000, msg = 0x0, state = 0x0, zalloc = 0xefd330 <zcalloc>, zfree = 0xefd340 <zcfree>, opaque = 0x0,
+      data_type = 64, adler = 2764170803, reserved = 15717184}}}
+(gdb) print $2.link->next
+$3 = (struct listElem *) 0x2b18e0000b40
+(gdb) print $3[0]
+$4 = {next = 0x0, timestamp = 1625571846, data = 0x2b18e0000b50 "\032\022"}
+(gdb) print (TraceNodeT*)$3
+$5 = (TraceNodeT *) 0x2b18e0000b40
+(gdb) print $5[0]
+$6 = {link = {next = 0x0, timestamp = 1625571846, data = 0x2b18e0000b50 "\032\022"}, ctx = {streamId = 4634, stream = {
+      next_in = 0xc03f32029d "\003", avail_in = 0, total_in = 518, next_out = 0x2b18636983f8 "", avail_out = 2096152,
+      total_out = 1000, msg = 0x0, state = 0x0, zalloc = 0xefd330 <zcalloc>, zfree = 0xefd340 <zcfree>, opaque = 0x0,
+      data_type = 64, adler = 2764170803, reserved = 15717184}}}
+(gdb) quit
+
+[baohu.rbh@yundunwafengine1.eu13 /home/admin/warden]
+$nm /home/admin/warden/bin/warden|grep InitGzipMap
+0000000000c22cc0 t gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.InitGzipMap
+
+[baohu.rbh@yundunwafengine1.eu13 /home/admin/warden]
+$nm /home/admin/warden/bin/warden|grep GetNewStream
+
+[baohu.rbh@yundunwafengine1.eu13 /home/admin/warden]
+$sudo gdb ./bin/warden -c core.12962
+GNU gdb (GDB) 7.11.1
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-pc-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./bin/warden...done.
+[New LWP 14465]
+[New LWP 14466]
+[New LWP 14457]
+[New LWP 14467]
+[New LWP 14481]
+[New LWP 14479]
+[New LWP 14373]
+[New LWP 14500]
+[New LWP 12962]
+[New LWP 12964]
+[New LWP 14506]
+[New LWP 14468]
+[New LWP 12980]
+[New LWP 12974]
+[New LWP 14372]
+[New LWP 14501]
+[New LWP 14375]
+[New LWP 14456]
+[New LWP 14469]
+[New LWP 12963]
+[New LWP 14470]
+[New LWP 12965]
+[New LWP 14507]
+[New LWP 14475]
+[New LWP 14478]
+[New LWP 14480]
+[New LWP 14339]
+[New LWP 14462]
+[New LWP 14494]
+[New LWP 14504]
+[New LWP 14459]
+[New LWP 14502]
+[New LWP 14497]
+[New LWP 14358]
+[New LWP 12972]
+[New LWP 12969]
+[New LWP 12966]
+[New LWP 12971]
+[New LWP 14374]
+[New LWP 14464]
+[New LWP 12979]
+[New LWP 12976]
+[New LWP 14471]
+[New LWP 14376]
+[New LWP 14472]
+[New LWP 14476]
+[New LWP 14453]
+[New LWP 14340]
+[New LWP 14495]
+[New LWP 14505]
+[New LWP 14503]
+[New LWP 12970]
+[New LWP 14498]
+[New LWP 14359]
+[New LWP 14377]
+[New LWP 12967]
+[New LWP 12973]
+[New LWP 14458]
+[New LWP 12978]
+[New LWP 14473]
+[New LWP 14477]
+[New LWP 14455]
+[New LWP 14454]
+[New LWP 14496]
+[New LWP 12977]
+[New LWP 14461]
+[New LWP 14499]
+[New LWP 14460]
+[New LWP 12968]
+[New LWP 14357]
+[New LWP 12975]
+[New LWP 14474]
+[New LWP 14356]
+Core was generated by `/home/admin/warden/bin/warden -c /home/admin/warden/conf/warden.conf'.
+Program terminated with signal SIGABRT, Aborted.
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+165	/root/go/src/runtime/sys_linux_amd64.s: No such file or directory.
+[Current thread is 1 (LWP 14465)]
+warning: Missing auto-load script at offset 0 in section .debug_gdb_scripts
+of file /home/admin/warden/bin/warden.
+Use `info auto-load python-scripts [REGEXP]' to list them.
+(gdb) disassemble 0x0000000000c22cc0
+Dump of assembler code for function gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.InitGzipMap:
+   0x0000000000c22cc0 <+0>:	mov    %fs:0xffffffffffffffa0,%rcx
+   0x0000000000c22cc9 <+9>:	cmp    0x10(%rcx),%rsp
+   0x0000000000c22ccd <+13>:	jbe    0xc22e72 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.InitGzipMap+434>
+   0x0000000000c22cd3 <+19>:	sub    $0x28,%rsp
+   0x0000000000c22cd7 <+23>:	mov    %rbp,0x20(%rsp)
+   0x0000000000c22cdc <+28>:	lea    0x20(%rsp),%rbp
+   0x0000000000c22ce1 <+33>:	lea    0x9bf998(%rip),%rax        # 0x15e2680
+   0x0000000000c22ce8 <+40>:	mov    %rax,(%rsp)
+   0x0000000000c22cec <+44>:	mov    0x30(%rsp),%rax
+   0x0000000000c22cf1 <+49>:	mov    %rax,0x8(%rsp)
+   0x0000000000c22cf6 <+54>:	mov    %rax,0x10(%rsp)
+   0x0000000000c22cfb <+59>:	callq  0x451870 <runtime.makeslice>
+   0x0000000000c22d00 <+64>:	mov    0x18(%rsp),%rax
+   0x0000000000c22d05 <+69>:	mov    0x30(%rsp),%rcx
+   0x0000000000c22d0a <+74>:	mov    %rcx,0x171d8a7(%rip)        # 0x23405b8 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray+8>
+   0x0000000000c22d11 <+81>:	mov    %rcx,0x171d8a8(%rip)        # 0x23405c0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray+16>
+   0x0000000000c22d18 <+88>:	cmpl   $0x0,0x1862071(%rip)        # 0x2484d90 <runtime.writeBarrier>
+   0x0000000000c22d1f <+95>:	jne    0xc22e58 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.InitGzipMap+408>
+   0x0000000000c22d25 <+101>:	mov    %rax,0x171d884(%rip)        # 0x23405b0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray>
+   0x0000000000c22d2c <+108>:	lea    0x8b044d(%rip),%rax        # 0x14d3180
+   0x0000000000c22d33 <+115>:	mov    %rax,(%rsp)
+   0x0000000000c22d37 <+119>:	mov    %rcx,0x8(%rsp)
+   0x0000000000c22d3c <+124>:	mov    %rcx,0x10(%rsp)
+   0x0000000000c22d41 <+129>:	callq  0x451870 <runtime.makeslice>
+   0x0000000000c22d46 <+134>:	mov    0x18(%rsp),%rax
+   0x0000000000c22d4b <+139>:	mov    0x30(%rsp),%rcx
+   0x0000000000c22d50 <+144>:	mov    %rcx,0x171d881(%rip)        # 0x23405d8 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipStreamIndex+8>
+   0x0000000000c22d57 <+151>:	mov    %rcx,0x171d882(%rip)        # 0x23405e0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipStreamIndex+16>
+   0x0000000000c22d5e <+158>:	cmpl   $0x0,0x186202b(%rip)        # 0x2484d90 <runtime.writeBarrier>
+   0x0000000000c22d65 <+165>:	jne    0xc22e47 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.InitGzipMap+391>
+   0x0000000000c22d6b <+171>:	mov    %rax,0x171d85e(%rip)        # 0x23405d0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipStreamIndex>
+   0x0000000000c22d72 <+178>:	lea    0x8af847(%rip),%rax        # 0x14d25c0
+   0x0000000000c22d79 <+185>:	mov    %rax,(%rsp)
+   0x0000000000c22d7d <+189>:	mov    %rcx,0x8(%rsp)
+   0x0000000000c22d82 <+194>:	mov    %rcx,0x10(%rsp)
+   0x0000000000c22d87 <+199>:	callq  0x451870 <runtime.makeslice>
+   0x0000000000c22d8c <+204>:	mov    0x18(%rsp),%rax
+   0x0000000000c22d91 <+209>:	mov    0x30(%rsp),%rcx
+   0x0000000000c22d96 <+214>:	mov    %rcx,0x171d85b(%rip)        # 0x23405f8 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.timeStampRecord+8>
+   0x0000000000c22d9d <+221>:	mov    %rcx,0x171d85c(%rip)        # 0x2340600 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.timeStampRecord+16>
+   0x0000000000c22da4 <+228>:	cmpl   $0x0,0x1861fe5(%rip)        # 0x2484d90 <runtime.writeBarrier>
+---Type <return> to continue, or q <return> to quit---q
+Quit
+(gdb) x /4xg 0x23405b0
+0x23405b0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray>:	0x000000c018da6000	0x00000000000000c8
+0x23405c0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipMapArray+16>:	0x00000000000000c8	0x0000000000000000
+(gdb) print 0xc8
+$1 = 200
+(gdb) x /30xg 0x000000c018da6000
+0xc018da6000:	0x0000000000000000	0x0000000000000000
+0xc018da6010:	0x0000000000000000	0x0000000000000000
+0xc018da6020:	0x0000000000000000	0x0000000000000000
+0xc018da6030:	0x0000000000000000	0x0000000000000000
+0xc018da6040:	0x0000000000000000	0x0000000000000000
+0xc018da6050:	0x0000000000000000	0x0000000000000000
+0xc018da6060:	0x0000000000000000	0x0000000000000000
+0xc018da6070:	0x0000000000000000	0x0000000000000000
+0xc018da6080:	0x0000000000000000	0x0000000000000000
+0xc018da6090:	0x0000000000000000	0x0000000000000000
+0xc018da60a0:	0x0000000000000000	0x0000000000000000
+0xc018da60b0:	0x0000000000000000	0x0000000000000000
+0xc018da60c0:	0x0000000000000000	0x0000000000000000
+0xc018da60d0:	0x0000000000000000	0x0000000000000000
+0xc018da60e0:	0x0000000000000000	0x0000000000000000
+(gdb) x /4xg 0x23405d0
+0x23405d0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipStreamIndex>:	0x000000c014e07800	0x00000000000000c8
+0x23405e0 <gitlab.alibaba-inc.com/ngwf/warden/gzip_decompress.gzipStreamIndex+16>:	0x00000000000000c8	0x0000000000000000
+(gdb) x /30xg 0x000000c014e07800
+0xc014e07800:	0x0000000000001224	0x00000000000011ec
+0xc014e07810:	0x0000000000001249	0x00000000000011d8
+0xc014e07820:	0x0000000000001236	0x00000000000011cf
+0xc014e07830:	0x0000000000001248	0x0000000000001247
+0xc014e07840:	0x0000000000001258	0x0000000000001213
+0xc014e07850:	0x00000000000011e1	0x0000000000001219
+0xc014e07860:	0x000000000000121d	0x000000000000120f
+0xc014e07870:	0x0000000000001245	0x0000000000001281
+0xc014e07880:	0x00000000000011fb	0x0000000000001257
+0xc014e07890:	0x0000000000001196	0x0000000000001219
+0xc014e078a0:	0x00000000000011e7	0x0000000000001208
+0xc014e078b0:	0x0000000000001217	0x000000000000126a
+0xc014e078c0:	0x00000000000011aa	0x0000000000001232
+0xc014e078d0:	0x00000000000011e4	0x0000000000001268
+0xc014e078e0:	0x0000000000001199	0x0000000000001276
+(gdb) print /d 0x1224
+$2 = 4644
+(gdb) bt
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#1  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#2  0x0000000000450e2e in runtime.sigfwdgo (sig=6, info=0xc08a6dfbf0, ctx=0xc08a6dfac0, ~r3=<optimized out>)
+    at /root/go/src/runtime/signal_unix.go:943
+#3  0x000000000044f784 in runtime.sigtrampgo (sig=6, info=0xc08a6dfbf0, ctx=0xc08a6dfac0)
+    at /root/go/src/runtime/signal_unix.go:412
+#4  0x000000000046e833 in runtime.sigtramp () at /root/go/src/runtime/sys_linux_amd64.s:389
+#5  <signal handler called>
+#6  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#7  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#8  0x0000000000450a0a in runtime.crash () at /root/go/src/runtime/signal_unix.go:821
+#9  0x0000000000469091 in runtime.fatalthrow.func1 () at /root/go/src/runtime/panic.go:1175
+#10 0x0000000000439927 in runtime.fatalthrow () at /root/go/src/runtime/panic.go:1168
+#11 0x0000000000439762 in runtime.throw (s=...) at /root/go/src/runtime/panic.go:1116
+#12 0x000000000045082a in runtime.sigpanic () at /root/go/src/runtime/signal_unix.go:679
+#13 0x000000000139a723 in _int_free ()
+#14 0x0000000000efbdcb in inflateEnd ()
+#15 0x0000000000ef6ac2 in TraceNodeClean (node=0x2b18fc000d80) at context.c:44
+#16 0x0000000000ef74e1 in DelElem (htbl=0x2b1798f52e00, key=key@entry=0x2b18dd196ca8, currentTime=1625571846) at hash_table.c:127
+#17 0x0000000000ef75f5 in hash_table_del (htbl=<optimized out>, key=key@entry=0x2b18dd196ca8, currentTime=<optimized out>)
+    at hash_table.c:178
+#18 0x0000000000ef6f66 in CleanGzipContext (streamId=4634, threadId=<optimized out>, currentTime=<optimized out>)
+    at context.c:294
+#19 0x0000000000ef697e in _cgo_12cab474a5f0_Cfunc_CleanGzipContext (v=0xc039623840) at cgo-gcc-prolog:56
+#20 0x000000000046c060 in runtime.asmcgocall () at /root/go/src/runtime/asm_amd64.s:655
+#21 0x00000000000001e9 in ?? ()
+#22 0x00000000000001e8 in ?? ()
+#23 0x00002b18dd196d00 in ?? ()
+#24 0x00007fff39146a37 in clock_gettime ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+(gdb) select-frame 19
+(gdb) x /4xg v
+0xc039623840:	0x000000000000121a	0x00000000000000be
+0xc039623850:	0x0000000060e44206	0x0000000000000000
+(gdb) print 0xbe
+$3 = 190
+(gdb) x /191xg 0x000000c014e07800
+0xc014e07800:	0x0000000000001224	0x00000000000011ec
+0xc014e07810:	0x0000000000001249	0x00000000000011d8
+0xc014e07820:	0x0000000000001236	0x00000000000011cf
+0xc014e07830:	0x0000000000001248	0x0000000000001247
+0xc014e07840:	0x0000000000001258	0x0000000000001213
+0xc014e07850:	0x00000000000011e1	0x0000000000001219
+0xc014e07860:	0x000000000000121d	0x000000000000120f
+0xc014e07870:	0x0000000000001245	0x0000000000001281
+0xc014e07880:	0x00000000000011fb	0x0000000000001257
+0xc014e07890:	0x0000000000001196	0x0000000000001219
+0xc014e078a0:	0x00000000000011e7	0x0000000000001208
+0xc014e078b0:	0x0000000000001217	0x000000000000126a
+0xc014e078c0:	0x00000000000011aa	0x0000000000001232
+0xc014e078d0:	0x00000000000011e4	0x0000000000001268
+0xc014e078e0:	0x0000000000001199	0x0000000000001276
+0xc014e078f0:	0x00000000000011d4	0x0000000000001217
+0xc014e07900:	0x000000000000120e	0x000000000000122e
+0xc014e07910:	0x0000000000001222	0x000000000000125e
+0xc014e07920:	0x00000000000011f4	0x000000000000124f
+0xc014e07930:	0x00000000000011e4	0x0000000000001217
+0xc014e07940:	0x00000000000011e8	0x0000000000001228
+0xc014e07950:	0x0000000000001222	0x0000000000001294
+0xc014e07960:	0x000000000000120c	0x000000000000116b
+0xc014e07970:	0x0000000000001239	0x0000000000001201
+0xc014e07980:	0x0000000000001218	0x0000000000001248
+0xc014e07990:	0x0000000000001206	0x00000000000011d8
+0xc014e079a0:	0x000000000000121c	0x0000000000001236
+0xc014e079b0:	0x00000000000011ef	0x0000000000001218
+0xc014e079c0:	0x00000000000011ea	0x00000000000011e3
+0xc014e079d0:	0x0000000000001210	0x000000000000123c
+0xc014e079e0:	0x0000000000001262	0x000000000000123c
+0xc014e079f0:	0x00000000000011f6	0x0000000000001225
+0xc014e07a00:	0x00000000000011a8	0x000000000000122d
+0xc014e07a10:	0x0000000000001267	0x000000000000122a
+0xc014e07a20:	0x00000000000011b7	0x0000000000001200
+0xc014e07a30:	0x0000000000001221	0x0000000000001267
+0xc014e07a40:	0x000000000000114e	0x0000000000001208
+0xc014e07a50:	0x0000000000001212	0x00000000000011f0
+0xc014e07a60:	0x0000000000001246	0x00000000000011bd
+0xc014e07a70:	0x00000000000011f9	0x00000000000011e7
+0xc014e07a80:	0x0000000000001236	0x0000000000001203
+0xc014e07a90:	0x00000000000011fd	0x00000000000011cb
+0xc014e07aa0:	0x00000000000011a5	0x000000000000122f
+0xc014e07ab0:	0x00000000000011e3	0x00000000000011b5
+0xc014e07ac0:	0x0000000000001221	0x0000000000001283
+0xc014e07ad0:	0x00000000000011f7	0x00000000000011ee
+0xc014e07ae0:	0x000000000000121c	0x00000000000011a5
+0xc014e07af0:	0x00000000000011c5	0x000000000000123d
+0xc014e07b00:	0x000000000000122b	0x0000000000001264
+0xc014e07b10:	0x00000000000012aa	0x000000000000123e
+---Type <return> to continue, or q <return> to quit---
+0xc014e07b20:	0x000000000000124d	0x00000000000011c9
+0xc014e07b30:	0x00000000000011fc	0x000000000000122d
+0xc014e07b40:	0x000000000000127c	0x00000000000011db
+0xc014e07b50:	0x000000000000128f	0x000000000000126c
+0xc014e07b60:	0x00000000000011c6	0x0000000000001221
+0xc014e07b70:	0x000000000000120a	0x0000000000001201
+0xc014e07b80:	0x0000000000001253	0x0000000000001219
+0xc014e07b90:	0x0000000000001230	0x00000000000011d4
+0xc014e07ba0:	0x0000000000001217	0x0000000000001258
+0xc014e07bb0:	0x0000000000001266	0x00000000000011e1
+0xc014e07bc0:	0x00000000000012af	0x0000000000001254
+0xc014e07bd0:	0x000000000000128f	0x0000000000001243
+0xc014e07be0:	0x0000000000001203	0x0000000000001235
+0xc014e07bf0:	0x00000000000011ef	0x000000000000121f
+0xc014e07c00:	0x00000000000011a6	0x0000000000001229
+0xc014e07c10:	0x0000000000001243	0x00000000000012c5
+0xc014e07c20:	0x0000000000001270	0x00000000000011fb
+0xc014e07c30:	0x00000000000011af	0x0000000000001256
+0xc014e07c40:	0x0000000000001245	0x0000000000001239
+0xc014e07c50:	0x0000000000001254	0x00000000000011ee
+0xc014e07c60:	0x000000000000124b	0x000000000000123d
+0xc014e07c70:	0x00000000000011e8	0x00000000000011e3
+0xc014e07c80:	0x0000000000001210	0x000000000000123a
+0xc014e07c90:	0x0000000000001255	0x000000000000126c
+0xc014e07ca0:	0x0000000000001234	0x00000000000011df
+0xc014e07cb0:	0x0000000000001216	0x00000000000011de
+0xc014e07cc0:	0x00000000000011ea	0x00000000000011b8
+0xc014e07cd0:	0x000000000000119d	0x00000000000011b6
+0xc014e07ce0:	0x000000000000124f	0x00000000000011d5
+0xc014e07cf0:	0x0000000000001216	0x0000000000001239
+0xc014e07d00:	0x00000000000011fa	0x000000000000126b
+0xc014e07d10:	0x00000000000011f5	0x0000000000001276
+0xc014e07d20:	0x00000000000011c2	0x000000000000125b
+0xc014e07d30:	0x00000000000011ef	0x00000000000011f8
+0xc014e07d40:	0x0000000000001216	0x0000000000001227
+0xc014e07d50:	0x0000000000001244	0x000000000000125f
+0xc014e07d60:	0x0000000000001248	0x00000000000011eb
+0xc014e07d70:	0x0000000000001242	0x00000000000011df
+0xc014e07d80:	0x0000000000001218	0x000000000000123e
+0xc014e07d90:	0x0000000000001250	0x0000000000001233
+0xc014e07da0:	0x0000000000001264	0x0000000000001235
+0xc014e07db0:	0x000000000000124b	0x0000000000001250
+0xc014e07dc0:	0x000000000000115e	0x0000000000001206
+0xc014e07dd0:	0x0000000000001206	0x0000000000001203
+0xc014e07de0:	0x00000000000011f5	0x00000000000011f0
+0xc014e07df0:	0x000000000000121c
+(gdb) print 0x121c
+$4 = 4636
+
+
+(gdb) bt
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#1  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#2  0x0000000000450e2e in runtime.sigfwdgo (sig=6, info=0xc075947bf0, ctx=0xc075947ac0, ~r3=<optimized out>)
+    at /root/go/src/runtime/signal_unix.go:943
+#3  0x000000000044f784 in runtime.sigtrampgo (sig=6, info=0xc075947bf0, ctx=0xc075947ac0) at /root/go/src/runtime/signal_unix.go:412
+#4  0x000000000046e833 in runtime.sigtramp () at /root/go/src/runtime/sys_linux_amd64.s:389
+#5  <signal handler called>
+#6  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#7  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#8  0x0000000000450a0a in runtime.crash () at /root/go/src/runtime/signal_unix.go:821
+#9  0x0000000000469091 in runtime.fatalthrow.func1 () at /root/go/src/runtime/panic.go:1175
+#10 0x0000000000439927 in runtime.fatalthrow () at /root/go/src/runtime/panic.go:1168
+#11 0x0000000000439762 in runtime.throw (s=...) at /root/go/src/runtime/panic.go:1116
+#12 0x000000000045082a in runtime.sigpanic () at /root/go/src/runtime/signal_unix.go:679
+#13 0x000000000139a723 in _int_free ()
+#14 0x0000000000efbdcb in inflateEnd ()
+#15 0x0000000000ef6ac2 in TraceNodeClean (node=0x2ad9d80008e0) at context.c:44
+#16 0x0000000000ef74e1 in DelElem (htbl=0x2ad898e2b900, key=key@entry=0x2ad9d01ffca8, currentTime=1625571497) at hash_table.c:127
+#17 0x0000000000ef75f5 in hash_table_del (htbl=<optimized out>, key=key@entry=0x2ad9d01ffca8, currentTime=<optimized out>) at hash_table.c:178
+#18 0x0000000000ef6f66 in CleanGzipContext (streamId=1224, threadId=<optimized out>, currentTime=<optimized out>) at context.c:294
+#19 0x0000000000ef697e in _cgo_12cab474a5f0_Cfunc_CleanGzipContext (v=0xc075045840) at cgo-gcc-prolog:56
+#20 0x000000000046c060 in runtime.asmcgocall () at /root/go/src/runtime/asm_amd64.s:655
+#21 0x00002ad860a28f70 in ?? ()
+#22 0x0000000000000169 in ?? ()
+#23 0x00002ad9d01ffd00 in ?? ()
+#24 0x00007fff63bffa37 in clock_gettime ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+(gdb) select-frame 19
+(gdb) x /4xg v
+0xc075045840:	0x00000000000004c8	0x0000000000000046
+0xc075045850:	0x0000000060e440a9	0x0000000000000000
+(gdb) print 0x46
+$1 = 70
+(gdb) print 0x4c8
+$2 = 1224
+(gdb) print globalTableArray.head[70]
+$3 = (struct HashTable *) 0x2ad898e2b900
+(gdb) print $3[0]
+$4 = {bucket = 0x2ad898e2b930, bucketSize = 500, nodeMax = 500, nodeCnt = 1, timeout = 30, statis = 0x2ad898e2d880, ops = 0x22e6460 <traceNodeOps>}
+(gdb) select-frame 16
+(gdb) print *(int*)key
+$5 = 1224
+(gdb) print 1224/500
+$6 = 2
+(gdb) print 1224%500
+$7 = 224
+(gdb) print htbl->bucket[224]
+$8 = {next = 0x0, timestamp = 0, data = 0x2ad898e2c740 ""}
+(gdb) select-frame 15
+(gdb) print (TraceNodeT*)node
+$9 = (TraceNodeT *) 0x2ad9d80008e0
+(gdb) print $9[0]
+$10 = {link = {next = 0x0, timestamp = 1625571498, data = 0x2ad9d80008f0 "\310\004"}, ctx = {streamId = 1224, stream = {
+      next_in = 0xc02739fd9d "\003", avail_in = 0, total_in = 518, next_out = 0x2ad9545e03f8 "", avail_out = 2096152, total_out = 1000, msg = 0x0,
+      state = 0x0, zalloc = 0xefd330 <zcalloc>, zfree = 0xefd340 <zcfree>, opaque = 0x0, data_type = 64, adler = 2764170803, reserved = 6}}}
+(gdb) disassemble inflateEnd
+Dump of assembler code for function inflateEnd:
+   0x0000000000efbd70 <+0>:	test   %rdi,%rdi
+   0x0000000000efbd73 <+3>:	push   %rbx
+   0x0000000000efbd74 <+4>:	mov    $0xfffffffe,%eax
+	/*stream保存到$rbx*/
+   0x0000000000efbd79 <+9>:	mov    %rdi,%rbx
+	/*stream为空则跳转*/
+   0x0000000000efbd7c <+12>:	je     0xefbd9c <inflateEnd+44>
+	/*stream->zalloc是否为空*/
+   0x0000000000efbd7e <+14>:	cmpq   $0x0,0x40(%rdi)
+   0x0000000000efbd83 <+19>:	je     0xefbd9c <inflateEnd+44>
+	/*stream->zfree是否为空*/
+   0x0000000000efbd85 <+21>:	mov    0x48(%rdi),%rcx
+   0x0000000000efbd89 <+25>:	test   %rcx,%rcx
+   0x0000000000efbd8c <+28>:	je     0xefbd9c <inflateEnd+44>
+	/*stream->state是否为空*/
+   0x0000000000efbd8e <+30>:	mov    0x38(%rdi),%rdx
+   0x0000000000efbd92 <+34>:	test   %rdx,%rdx
+   0x0000000000efbd95 <+37>:	je     0xefbd9c <inflateEnd+44>
+	/*state->stream是否等于stream*/
+   0x0000000000efbd97 <+39>:	cmp    (%rdx),%rdi
+   0x0000000000efbd9a <+42>:	je     0xefbda0 <inflateEnd+48>
+   0x0000000000efbd9c <+44>:	pop    %rbx
+   0x0000000000efbd9d <+45>:	retq
+   0x0000000000efbd9e <+46>:	xchg   %ax,%ax
+	/*state->mode*/
+   0x0000000000efbda0 <+48>:	mov    0x8(%rdx),%esi
+	/*state->mode - HEAD(16180)*/
+   0x0000000000efbda3 <+51>:	sub    $0x3f34,%esi
+	/*state->mode < SYNC*/
+   0x0000000000efbda9 <+57>:	cmp    $0x1f,%esi
+   0x0000000000efbdac <+60>:	ja     0xefbd9c <inflateEnd+44>
+	/*state->window保存到$rsi*/
+   0x0000000000efbdae <+62>:	mov    0x48(%rdx),%rsi
+	/*state->window不为空，作为第二个参数*/
+   0x0000000000efbdb2 <+66>:	test   %rsi,%rsi
+   0x0000000000efbdb5 <+69>:	je     0xefbde0 <inflateEnd+112>
+	/*stream->opaque作为第一个参数*/
+   0x0000000000efbdb7 <+71>:	mov    0x50(%rbx),%rdi
+	/*zfree(opaque, window)*/
+   0x0000000000efbdbb <+75>:	callq  *%rcx
+	/*stream->zfree*/
+   0x0000000000efbdbd <+77>:	mov    0x48(%rbx),%rcx
+	/*stream->state*/
+   0x0000000000efbdc1 <+81>:	mov    0x38(%rbx),%rsi
+	/*stream->opaque*/
+   0x0000000000efbdc5 <+85>:	mov    0x50(%rbx),%rdi
+	/*stream->zfree(opaque, state)*/
+   0x0000000000efbdc9 <+89>:	callq  *%rcx
+	/*stream->state = NULL*/
+   0x0000000000efbdcb <+91>:	movq   $0x0,0x38(%rbx)
+   0x0000000000efbdd3 <+99>:	xor    %eax,%eax
+   0x0000000000efbdd5 <+101>:	pop    %rbx
+   0x0000000000efbdd6 <+102>:	retq
+   0x0000000000efbdd7 <+103>:	nopw   0x0(%rax,%rax,1)
+   0x0000000000efbde0 <+112>:	mov    %rdx,%rsi
+   0x0000000000efbde3 <+115>:	jmp    0xefbdc5 <inflateEnd+85>
+End of assembler dump.
+(gdb) select-frame 14
+(gdb) info locals
+No symbol table info available.
+(gdb) print $rdi
+$11 = 9604
+(gdb) ptype $9
+type = struct TraceNode {
+    listElem link;
+    GzipContextT ctx;
+} *
+(gdb) ptype $9.ctx
+type = struct GzipContext {
+    uint64_t streamId;
+    z_stream stream;
+}
+(gdb) ptype $9.ctx.stream
+type = struct z_stream_s {
+    Bytef *next_in;
+    uInt avail_in;
+    uLong total_in;
+    Bytef *next_out;
+    uInt avail_out;
+    uLong total_out;
+    char *msg;
+    struct internal_state *state;
+    alloc_func zalloc;
+    free_func zfree;
+    voidpf opaque;
+    int data_type;
+    uLong adler;
+    uLong reserved;
+}
+(gdb) print &($9.ctx.stream.state)
+$12 = (struct internal_state **) 0x2ad9d8000930
+(gdb) print &($9.ctx.stream)
+$13 = (z_stream *) 0x2ad9d80008f8
+(gdb) print $12-$13
+First argument of `-' is a pointer and second argument is neither
+an integer nor a pointer of the same type.
+(gdb) print 0x2ad9d8000930-0x2ad9d80008f8
+$14 = 56
+(gdb) print /x 0x2ad9d8000930-0x2ad9d80008f8
+$15 = 0x38
+(gdb) print 0x3f34
+$16 = 16180
+
+
+/*
+82 struct inflate_state {
+ 83     z_streamp strm;             /* pointer back to this zlib stream */
+ 84     inflate_mode mode;          /* current inflate mode */
+ 85     int last;                   /* true if processing last block */
+ 86     int wrap;                   /* bit 0 true for zlib, bit 1 true for gzip,
+ 87                                    bit 2 true to validate check value */
+ 88     int havedict;               /* true if dictionary provided */
+ 89     int flags;                  /* gzip header method and flags (0 if zlib) */
+ 90     unsigned dmax;              /* zlib header max distance (INFLATE_STRICT) */
+ 91     unsigned long check;        /* protected copy of check value */
+ 92     unsigned long total;        /* protected copy of output count */
+ 93     gz_headerp head;            /* where to save gzip header information */
+ 94         /* sliding window */
+ 95     unsigned wbits;             /* log base 2 of requested window size */
+ 96     unsigned wsize;             /* window size or zero if not using window */
+ 97     unsigned whave;             /* valid bytes in the window */
+ 98     unsigned wnext;             /* window write index */
+ 99     unsigned char FAR *window;  /* allocated sliding window, if needed */
+100         /* bit accumulator */
+101     unsigned long hold;         /* input bit accumulator */
+102     unsigned bits;              /* number of bits in "in" */
+103         /* for string and stored block copying */
+104     unsigned length;            /* literal or length of data to copy */
+105     unsigned offset;            /* distance back to copy string from */
+106         /* for table and code decoding */
+107     unsigned extra;             /* extra bits needed */
+108         /* fixed and dynamic code tables */
+109     code const FAR *lencode;    /* starting table for length/literal codes */
+110     code const FAR *distcode;   /* starting table for distance codes */
+111     unsigned lenbits;           /* index bits for lencode */
+112     unsigned distbits;          /* index bits for distcode */
+113         /* dynamic table building */
+114     unsigned ncode;             /* number of code length code lengths */
+115     unsigned nlen;              /* number of length code lengths */
+116     unsigned ndist;             /* number of distance code lengths */
+117     unsigned have;              /* number of code lengths in lens[] */
+118     code FAR *next;             /* next available space in codes[] */
+119     unsigned short lens[320];   /* temporary storage for code lengths */
+120     unsigned short work[288];   /* work area for code table building */
+121     code codes[ENOUGH];         /* space for code tables */
+122     int sane;                   /* if false, allow invalid distance too far */
+123     int back;                   /* bits back of last unprocessed length/lit */
+124     unsigned was;               /* initial length of match */
+125 };
+*/
