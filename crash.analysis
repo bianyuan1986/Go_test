@@ -10246,6 +10246,7 @@ $16 = 16180
 122     int sane;                   /* if false, allow invalid distance too far */
 123     int back;                   /* bits back of last unprocessed length/lit */
 124     unsigned was;               /* initial length of match */
+125 };
 
 
 
@@ -10300,6 +10301,7 @@ $11 = 144
 $12 = 16
 (gdb) print sizeof($6.ctx)
 $13 = 128
+/*TraceNodeT内存块的头部记录的长度也是错误的*/
 (gdb) x /2xg 0x7f4090000b10
 0x7f4090000b10:	0x0000000000000000	0x00000000000204f1
 (gdb) print /x 144
@@ -10332,7 +10334,21 @@ $19 = (z_stream *) 0x7f4090000b38
 /*DONE，HEAD=16180*/
 (gdb) print 0x3f50
 $20 = 16208
+(gdb) print /x 0x7f4090021008
+$21 = 0x7f4090021008
+/*
+fatal error: unexpected signal during runtime execution
+[signal SIGSEGV: segmentation violation code=0x2 addr=0x7f4090021008 pc=0x139a773]
 
+runtime stack:
+提示出错的地址为0x7f4090021008，state内存块的header记录的长度为(0x20451 & 0x3)，
+但内存块实际长度不应该这么大，所以根据该长度去访问内存尾部时越界crash
+*/
+(gdb) print /x 0x20450+0x7f4090000bb0
+$15 = 0x7f4090021000
 
-125 };
+/*TraceNodeT内存块头部记录的长度和state内存块记录的头部长度的差值为160，正好是TraceNodeT内存块的大小，因为144字节分配出的内存块大小为160*/
+(gdb) print 0x204f1-0x20451
+$12 = 160
+
 */
