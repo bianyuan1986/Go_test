@@ -10352,3 +10352,142 @@ $15 = 0x7f4090021000
 $12 = 160
 
 */
+
+
+/*
+Fatal: Trace node corrupted:
+Addr: 0x6c3dc9e0:0x6c3dc9e0
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+
+前面的内存块被分配出去了，所以从0xb4变为0xb5
+Fatal: Trace node corrupted:
+Addr: 0x80002880:0x80002880
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x3678280:0x3678280
+TraceSize: 0xb0:0xb1
+ StateSize: 0x1c01:0x1c01
+Fatal: Trace node corrupted:
+Addr: 0x54000990:0x54000990
+TraceSize: 0xb5:0xb4
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x540042f0:0x540042f0
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x74002880:0x74002880
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x4c002900:0x4c002900
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x48002620:0x48002620
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x800061e0:0x800061e0
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x50000990:0x50000990
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x60002640:0x60002640
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x40009d0:0x40009d0
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x60004240:0x60004240
+TraceSize: 0xb5:0xb4
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x58000a10:0x58000a10
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x84004a10:0x84004a10
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x80028a0:0x80028a0
+TraceSize: 0xb4:0xb5
+ StateSize: 0x1c05:0x1c05
+Fatal: Trace node corrupted:
+Addr: 0x48004220:0x48004220
+TraceSize: 0xb5:0xb4
+ StateSize: 0x1c05:0x1c05
+/*内存块地址范围发生了变化，变成了0x7f开头的地址*/
+fatal error: unexpected signal during runtime execution
+[signal SIGSEGV: segmentation violation code=0x2 addr=0x7f4870021008 pc=0x139a7e3]
+*/
+
+(gdb) bt
+#0  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#1  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#2  0x0000000000450e2e in runtime.sigfwdgo (sig=6, info=0xc000535bf0, ctx=0xc000535ac0, ~r3=<optimized out>)
+    at /root/go/src/runtime/signal_unix.go:943
+#3  0x000000000044f784 in runtime.sigtrampgo (sig=6, info=0xc000535bf0, ctx=0xc000535ac0) at /root/go/src/runtime/signal_unix.go:412
+#4  0x000000000046e833 in runtime.sigtramp () at /root/go/src/runtime/sys_linux_amd64.s:389
+#5  <signal handler called>
+#6  runtime.raise () at /root/go/src/runtime/sys_linux_amd64.s:165
+#7  0x000000000045087b in runtime.dieFromSignal (sig=6) at /root/go/src/runtime/signal_unix.go:729
+#8  0x0000000000450a0a in runtime.crash () at /root/go/src/runtime/signal_unix.go:821
+#9  0x0000000000469091 in runtime.fatalthrow.func1 () at /root/go/src/runtime/panic.go:1175
+#10 0x0000000000439927 in runtime.fatalthrow () at /root/go/src/runtime/panic.go:1168
+#11 0x0000000000439762 in runtime.throw (s=...) at /root/go/src/runtime/panic.go:1116
+#12 0x000000000045082a in runtime.sigpanic () at /root/go/src/runtime/signal_unix.go:679
+#13 0x000000000139a7e3 in _int_free ()
+#14 0x0000000000efbe8b in inflateEnd ()
+#15 0x0000000000ef6b59 in TraceNodeClean (node=0x7f4870000b40) at context.c:85
+#16 0x0000000000ef75a1 in DelElem (htbl=0x7f49782e9780, key=key@entry=0x7f49721fbca8, currentTime=1625800200) at hash_table.c:127
+#17 0x0000000000ef76b5 in hash_table_del (htbl=<optimized out>, key=key@entry=0x7f49721fbca8, currentTime=<optimized out>) at hash_table.c:177
+#18 0x0000000000ef6ff6 in CleanGzipContext (streamId=2038, threadId=<optimized out>, currentTime=<optimized out>) at context.c:334
+#19 0x0000000000ef698e in _cgo_12cab474a5f0_Cfunc_CleanGzipContext (v=0xc0668e7840) at cgo-gcc-prolog:56
+#20 0x000000000046c060 in runtime.asmcgocall () at /root/go/src/runtime/asm_amd64.s:655
+#21 0x00007f4866708738 in ?? ()
+#22 0x00000000000001b9 in ?? ()
+#23 0x00007f49721fbd00 in ?? ()
+#24 0x00007fffc5f5da37 in clock_gettime ()
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+(gdb) select-frame 15
+(gdb) print (TraceNodet*)node
+No symbol "TraceNodet" in current context.
+(gdb) print (TraceNodeT*)node
+$1 = (TraceNodeT *) 0x7f4870000b40
+(gdb) print $1[0]
+$2 = {link = {next = 0x7f480c000b40, timestamp = 1625800202, data = 0x7f4870000b50 "\366\a"}, ctx = {streamId = 2038, stream = {
+      next_in = 0xc049ad991d "\003", avail_in = 0, total_in = 518, next_out = 0x7f4889d913f8 "", avail_out = 2096152, total_out = 1000,
+      msg = 0x0, state = 0x0, zalloc = 0xefd3f0 <zcalloc>, zfree = 0xefd400 <zcfree>, opaque = 0x0, data_type = 64, adler = 2764170803,
+      reserved = 15717376}, traceSize = 181, stateSize = 7173, addr = 139949093424112}}
+/*0xb5，内存块大小为0xb0=176，0x5(0x1+0x4)表明 A（0x04) Allocated Arena M(0x2) MMap'd chunk P(0x01) Previous chunk is inuse*/
+(gdb) print /x $2
+$3 = {link = {next = 0x7f480c000b40, timestamp = 0x60e7be0a, data = 0x7f4870000b50}, ctx = {streamId = 0x7f6, stream = {
+      next_in = 0xc049ad991d, avail_in = 0x0, total_in = 0x206, next_out = 0x7f4889d913f8, avail_out = 0x1ffc18, total_out = 0x3e8,
+      msg = 0x0, state = 0x0, zalloc = 0xefd3f0, zfree = 0xefd400, opaque = 0x0, data_type = 0x40, adler = 0xa4c1e633, reserved = 0xefd400},
+    traceSize = 0xb5, stateSize = 0x1c05, addr = 0x7f4870000bf0}}
+(gdb) print $3.ctx.stream.state
+$4 = (struct internal_state *) 0x0
+(gdb) x /2xg 0x7f4870000be0
+0x7f4870000be0:	0x0000000000000000	0x0000000000020421
+(gdb) x /2xg 0x7f4870000b30
+0x7f4870000b30:	0x0000000000000000	0x00000000000204d1
+(gdb) print 0x00000000000204d1-0x0000000000020421
+$5 = 176
+(gdb) print 0xb0
+$6 = 176
+(gdb) print 0x7f4870021008-0x7f4870000bf0
+$7 = 132120
+(gdb) print /x $7
+$8 = 0x20418
+/*从上面信息推测是前面的内存块踩踏了后面的内存块*/
+
+
