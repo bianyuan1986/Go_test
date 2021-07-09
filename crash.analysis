@@ -10341,7 +10341,7 @@ fatal error: unexpected signal during runtime execution
 [signal SIGSEGV: segmentation violation code=0x2 addr=0x7f4090021008 pc=0x139a773]
 
 runtime stack:
-提示出错的地址为0x7f4090021008，state内存块的header记录的长度为(0x20451 & 0x3)，
+提示出错的地址为0x7f4090021008，state内存块的header记录的长度为(0x20451 & 0x7)，
 但内存块实际长度不应该这么大，所以根据该长度去访问内存尾部时越界crash
 */
 (gdb) print /x 0x20450+0x7f4090000bb0
